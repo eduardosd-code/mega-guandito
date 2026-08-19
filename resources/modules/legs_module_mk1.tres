@@ -1,0 +1,9 @@
+ModuleData.new({
+"id": "legs_mk1",
+"display_name": "Legs Module Mk-I",
+"description": "Basic mobility enhancement module. Increases movement speed and dash velocity.",
+"category": 3,
+"energy_cost": 2,
+"speed_modifier": 0.15,
+"dash_speed_modifier": 0.1
+})

@@ -1,0 +1,14 @@
+AttackData.new({
+"damage": 8,
+"knockback_vector": Vector2(150, 0),
+"hitstun_duration": 0.2,
+"active_frames": 4,
+"startup_frames": 3,
+"recovery_frames": 6,
+"attacker_hitstop": 0.03,
+"defender_hitstop": 0.08,
+"can_combo": true,
+"combo_window": 0.2,
+"is_launcher": false,
+"hitstop_scale": 0.8
+})
