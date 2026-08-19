@@ -1,0 +1,26 @@
+```
+# Godot-specific ignores
+.addons/
+.import/
+bin/
+.autoloads/
+.godot/
+
+# Build artifacts
+*.import
+*.scn.import
+*.tres.import
+*.tscn.import
+*.gd.import
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+```
