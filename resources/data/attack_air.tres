@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AttackData" load_steps=2 format=3]
+[ext_resource path="res://resources/data/attack_data.gd" type="Script" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"air"
+damage = 16
+knockback = Vector2(145, 85)
+hitstun = 0.24
+hitstop = 0.045
+startup = 0.06
+active_time = 0.12
+recovery = 0.14
+combo_window = 0.0
+hitbox_offset = Vector2(22, 10)
+hitbox_size = Vector2(38, 34)
+impact_fx = "light"
+air_hit_vertical_damping = 0.72

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="AttackData" load_steps=2 format=3]
+[ext_resource path="res://resources/data/attack_data.gd" type="Script" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"heavy"
+damage = 30
+knockback = Vector2(185, -285)
+hitstun = 0.34
+hitstop = 0.085
+startup = 0.19
+active_time = 0.12
+recovery = 0.26
+combo_window = 0.0
+hitbox_offset = Vector2(29, -2)
+hitbox_size = Vector2(48, 38)
+launcher = true
+impact_fx = "heavy"
+shake_intensity = 2.8
+shake_duration = 0.14

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AttackData" load_steps=2 format=3]
+[ext_resource path="res://resources/data/attack_data.gd" type="Script" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"light_1"
+damage = 10
+knockback = Vector2(95, -25)
+hitstun = 0.16
+startup = 0.045
+active_time = 0.075
+recovery = 0.09
+combo_window = 0.32
+hitstop = 0.028
+impact_fx = "light"

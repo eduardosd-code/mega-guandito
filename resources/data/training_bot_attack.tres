@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AttackData" load_steps=2 format=3]
+
+[ext_resource path="res://resources/data/attack_data.gd" type="Script" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"training_bot_jab"
+damage = 12
+knockback = Vector2(135, -55)
+hitstun = 0.24
+hitstop = 0.04
+startup = 0.18
+active_time = 0.1
+recovery = 0.22
+hitbox_offset = Vector2(20, 0)
+hitbox_size = Vector2(30, 26)
+impact_fx = "light"

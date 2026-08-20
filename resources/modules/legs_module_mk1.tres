@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ModuleData" load_steps=2 format=3]
+[ext_resource path="res://resources/modules/module_data.gd" type="Script" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"legs_mk1"
+display_name = "Modulo de Piernas Mk-I"
+description = "Servomotores recuperados: +12% velocidad, +15% dash."
+category = 3
+energy_cost = 2
+stat_modifiers = {&"speed": 0.12, &"dash_speed": 0.15}

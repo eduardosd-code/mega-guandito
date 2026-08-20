@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="AttackData" load_steps=2 format=3]
+[ext_resource path="res://resources/data/attack_data.gd" type="Script" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"dash"
+damage = 10
+knockback = Vector2(125, -38)
+hitstun = 0.26
+hitstop = 0.035
+startup = 0.02
+active_time = 0.13
+recovery = 0.12
+combo_window = 0.32
+hitbox_offset = Vector2(27, 0)
+hitbox_size = Vector2(42, 30)
+impact_fx = "kinetic"
+shake_intensity = 1.0
+shake_duration = 0.06
+momentum_retention = 0.42

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ModuleData" load_steps=2 format=3]
+
+[ext_resource path="res://resources/modules/module_data.gd" type="Script" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"overdrive_evasion_mk1"
+display_name = "Sobrecarga Evasiva Mk-I"
+description = "Sobrecarga los actuadores para una maniobra evasiva. Una evasión precisa evita el impacto; una mala sincronización deja los sistemas expuestos."
+category = 3
+energy_cost = 2
+special_effect_id = &"unlock_dodge"
+unlock_dodge = true
