@@ -79,6 +79,8 @@ var base_reactor := 10
 var base_walk := 92.0
 var base_run := 145.0
 var base_dash := 265.0
+var was_airborne := false
+var input_lock_left := 0.0
 
 func _ready() -> void:
 	add_to_group("player")
@@ -89,6 +91,7 @@ func _ready() -> void:
 	health.died.connect(_on_died)
 	experience.level_changed.connect(_on_level_up)
 	modules.modules_changed.connect(_apply_module_stats)
+	modules.unlock(LEGS_MODULE)
 	modules.energy_changed.emit(modules.energy_used(), modules.reactor_capacity)
 	visual.set_action(&"idle", facing)
 
@@ -98,6 +101,12 @@ func _physics_process(delta: float) -> void:
 		return
 	_tick_timers(delta)
 	if health.current_health <= 0:
+		return
+	if input_lock_left > 0.0:
+		_apply_gravity(delta)
+		velocity.x = move_toward(velocity.x, 0.0, deceleration * delta)
+		move_and_slide()
+		_update_ground_state()
 		return
 	if hitstun_left > 0.0:
 		hitstun_left -= delta
@@ -118,7 +127,11 @@ func _physics_process(delta: float) -> void:
 	_update_ground_state()
 
 func _tick_timers(delta: float) -> void:
+	var dash_was_active := dash_left > 0.0
 	dash_left = maxf(0.0, dash_left - delta)
+	if dash_was_active and dash_left == 0.0 and not attacking:
+		visual.set_action(&"dash_end", facing)
+	input_lock_left = maxf(0.0, input_lock_left - delta)
 	dash_cooldown_left = maxf(0.0, dash_cooldown_left - delta)
 	dodge_cooldown_left = maxf(0.0, dodge_cooldown_left - delta)
 	jump_buffer_left = maxf(0.0, jump_buffer_left - delta)
@@ -140,6 +153,7 @@ func _handle_actions() -> void:
 		jump_buffer_left = 0.0
 		coyote_left = 0.0
 		state_machine.change(&"jump")
+		visual.set_action(&"jump_start", facing)
 	if Input.is_action_just_released("jump") and velocity.y < 0.0:
 		velocity.y *= 0.48
 	if Input.is_action_just_pressed("dash") and is_on_floor() and dash_cooldown_left <= 0.0 and not attacking and dodge_phase == &"normal":
@@ -206,10 +220,14 @@ func _apply_gravity(delta: float) -> void:
 
 func _update_ground_state() -> void:
 	if is_on_floor():
+		if was_airborne and not attacking and dodge_phase == &"normal":
+			visual.set_action(&"land", facing)
 		coyote_left = coyote_time
 		air_attack_spent = false
 	elif velocity.y > 0.0 and not attacking and dash_left <= 0.0 and dodge_phase == &"normal":
 		state_machine.change(&"fall")
+		_set_visual_action(&"fall")
+	was_airborne = not is_on_floor()
 
 func _can_move() -> bool:
 	return dash_left <= 0.0 and dodge_phase == &"normal" and not attacking
@@ -218,7 +236,7 @@ func _start_dash() -> void:
 	dash_left = dash_duration
 	dash_cooldown_left = dash_cooldown
 	state_machine.change(&"dash")
-	visual.set_action(&"dash", facing)
+	visual.set_action(&"dash_start", facing)
 
 func _start_attack(id: StringName) -> void:
 	if attacking:
@@ -231,15 +249,23 @@ func _start_attack(id: StringName) -> void:
 	var token := attack_token
 	var data: AttackData = ATTACKS[id]
 	state_machine.change(&"attack")
-	visual.set_action(&"heavy" if id == &"heavy" else &"attack", facing)
+	var visual_action: StringName = id
+	if id == &"heavy": visual_action = &"heavy_start"
+	elif id == &"air": visual_action = &"air_light"
+	elif id == &"dash_light": visual_action = &"light_1"
+	visual.set_action(visual_action, facing)
 	await get_tree().create_timer(data.startup, false).timeout
 	if token != attack_token or health.current_health <= 0:
 		return
 	hitbox.activate(data, facing)
+	if id == &"heavy":
+		visual.set_action(&"heavy_attack", facing)
 	await get_tree().create_timer(data.active_time, false).timeout
 	if token != attack_token:
 		return
 	hitbox.deactivate()
+	if id == &"heavy":
+		visual.set_action(&"heavy_recovery", facing)
 	await get_tree().create_timer(data.recovery, false).timeout
 	if token != attack_token:
 		return
@@ -274,7 +300,7 @@ func _try_start_dodge() -> void:
 	dodge_phase_left = dodge_startup
 	dodge_cooldown_left = dodge_cooldown
 	state_machine.change(&"dodge_startup")
-	visual.set_action(&"dodge_startup", facing)
+	visual.set_action(&"dodge_start", facing)
 
 func _tick_dodge_phase(delta: float) -> void:
 	if dodge_phase == &"normal":
@@ -287,7 +313,7 @@ func _tick_dodge_phase(delta: float) -> void:
 			dodge_phase = &"evade"
 			dodge_phase_left = dodge_iframes
 			state_machine.change(&"dodge_evade")
-			visual.set_action(&"dodge_evade", facing)
+			visual.set_action(&"dodge_invulnerable", facing)
 		&"evade":
 			dodge_phase = &"exposed"
 			dodge_phase_left = dodge_exposed_time
@@ -298,7 +324,7 @@ func _tick_dodge_phase(delta: float) -> void:
 			dodge_phase_left = 0.0
 			visual.set_action(&"idle", facing)
 
-func _on_hit(data: AttackData, direction: float, attacker: Node) -> void:
+func _on_hit(data: AttackData, direction: float, _attacker: Node) -> void:
 	if dodge_phase == &"evade":
 		perfect_evade_count += 1
 		perfect_evade.emit(perfect_evade_count)
@@ -330,6 +356,9 @@ func apply_hitstop(duration: float) -> void:
 	hitstop_left = maxf(hitstop_left, duration)
 
 func _toggle_module(module: ModuleData) -> void:
+	if not modules.is_unlocked(module.id):
+		module_status.emit("MODULO NO ADQUIRIDO")
+		return
 	var was_equipped := modules.equipped.has(module.id)
 	var success := modules.toggle(module)
 	if not success:
@@ -361,10 +390,36 @@ func _on_died() -> void:
 	dodge_phase = &"normal"
 	state_machine.change(&"dead")
 	velocity = Vector2.ZERO
-	visual.set_action(&"dead", facing)
+	visual.set_action(&"death", facing)
 
 func add_xp(amount: int) -> void:
 	experience.add_xp(amount)
+
+func unlock_evasion_module(auto_equip: bool = true) -> void:
+	modules.unlock(EVASION_MODULE)
+	if auto_equip and not modules.equipped.has(EVASION_MODULE.id):
+		modules.equip(EVASION_MODULE)
+	module_status.emit("SOBRECARGA EVASIVA Mk-I INSTALADA")
+	input_lock_left = 0.65
+	velocity.x = 0.0
+	visual.set_action(&"module_install", facing)
+
+func respawn_at(world_position: Vector2) -> void:
+	global_position = world_position
+	velocity = Vector2.ZERO
+	var camera := get_node_or_null("Camera2D")
+	if camera != null and camera.has_method("reset_to_target"):
+		camera.reset_to_target()
+	health.current_health = health.max_health
+	health.health_changed.emit(health.current_health, health.max_health)
+	hitstun_left = 0.0
+	hitstop_left = 0.0
+	dash_left = 0.0
+	dodge_phase = &"normal"
+	_interrupt_attack()
+	state_machine.change(&"idle")
+	visual.set_action(&"idle", facing)
+	visual.modulate = Color.WHITE
 
 func dodge_debug_status() -> String:
 	if not modules.has_effect(&"unlock_dodge"):

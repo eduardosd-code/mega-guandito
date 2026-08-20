@@ -31,8 +31,12 @@ position = Vector2(0, -2)
 shape = SubResource("BodyShape")
 
 [node name="Visual" type="Node2D" parent="."]
-position = Vector2(0, -19)
+position = Vector2(0, 20)
 script = ExtResource("2")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Visual"]
+position = Vector2(0, -32)
+texture_filter = 1
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("3")

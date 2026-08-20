@@ -6,6 +6,13 @@ signal energy_changed(used: int, maximum: int)
 
 @export var reactor_capacity: int = 10
 var equipped: Dictionary = {}
+var unlocked: Dictionary = {}
+
+func unlock(module: ModuleData) -> void:
+	unlocked[module.id] = true
+
+func is_unlocked(module_id: StringName) -> bool:
+	return unlocked.has(module_id)
 
 func equip(module: ModuleData) -> bool:
 	if not module or equipped.has(module.id) or energy_used() + module.energy_cost > reactor_capacity:

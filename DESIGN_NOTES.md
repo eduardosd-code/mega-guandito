@@ -58,3 +58,11 @@ Una posible mecánica futura permitiría generar impulso mediante movimiento agr
 ## Próximo paso recomendado
 
 Realizar una sesión manual de 15–20 minutos con teclado y mando. Registrar especialmente fallos de input, distancia recorrida por Dash→Light, frecuencia de Perfect Evade y si Heavy resulta castigable. Ajustar primero tiempos y velocidades; después producir animaciones, VFX y SFX más elaborados.
+
+## Sector 07 — Instalación Abandonada
+
+Sector 07 es un escape ascendente mediante avance horizontal, elevadores, pasarelas y cambios de cota; no una subida vertical continua. El recorrido sigue el concept oficial: despertar → contacto → bombeo → conductos → ensamblaje → HOUND → superficie.
+
+La progresión enseña sin paneles invasivos. Mensajes breves aparecen en el mundo y cada arena exige la siguiente herramienta: combo contra Scrapper, dash contra Sentry, Heavy contra Bulwark y lectura de telegraphs contra HOUND. Sobrecarga Evasiva solo se desbloquea después del miniboss y se practica antes de contemplar KORA y La Aguja.
+
+Los fondos procedurales actuales establecen acero, grafito, óxido, ámbar, energía verde, tuberías y escala industrial. TileSets, sprites, iluminación, partículas y audio producido siguen pendientes de sustitución artística.

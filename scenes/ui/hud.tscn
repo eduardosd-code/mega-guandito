@@ -89,8 +89,24 @@ theme_override_font_sizes/font_size = 10
 
 [node name="ModuleLabel" type="Label" parent="TopRight/VBox"]
 unique_name_in_owner = true
-text = "M: PIERNAS MK-I"
+text = "M/N: MODULOS"
 horizontal_alignment = 1
+theme_override_font_sizes/font_size = 8
+
+[node name="ContextPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+offset_left = 105.0
+offset_top = 205.0
+offset_right = 375.0
+offset_bottom = 230.0
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="ContextLabel" type="Label" parent="ContextPanel"]
+unique_name_in_owner = true
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_colors/font_color = Color(0.74,0.96,0.45,1)
 theme_override_font_sizes/font_size = 8
 
 [node name="CombatDebugPanel" type="PanelContainer" parent="."]
@@ -116,3 +132,25 @@ text = "A/D MOVER  SHIFT CORRER  SPACE SALTAR  L DASH  J COMBO  K HEAVY  Q DODGE
 horizontal_alignment = 1
 theme_override_colors/font_color = Color(0.65, 0.72, 0.69, 1)
 theme_override_font_sizes/font_size = 7
+
+[node name="BossPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+offset_left = 140.0
+offset_top = 76.0
+offset_right = 340.0
+offset_bottom = 103.0
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="VBox" type="VBoxContainer" parent="BossPanel"]
+
+[node name="Label" type="Label" parent="BossPanel/VBox"]
+text = "VLR-03 HOUND"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1,0.38,0.22,1)
+theme_override_font_sizes/font_size = 9
+
+[node name="BossBar" type="ProgressBar" parent="BossPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190,8)
+show_percentage = false
+theme_override_styles/fill = SubResource("HealthFill")

@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource path="res://scenes/player/guandito.tscn" type="PackedScene" id="1"]
+[ext_resource path="res://scenes/enemies/sector_enemy.tscn" type="PackedScene" id="2"]
+[ext_resource path="res://scenes/enemies/vlr03_hound.tscn" type="PackedScene" id="3"]
+
+[node name="EnemyVisualTest" type="Node2D"]
+[node name="Guandito" parent="." instance=ExtResource("1")]
+position = Vector2(120, 260)
+[node name="Scrapper" parent="." instance=ExtResource("2")]
+position = Vector2(240, 260)
+role = 0
+[node name="Bulwark" parent="." instance=ExtResource("2")]
+position = Vector2(380, 260)
+role = 1
+[node name="Sentry" parent="." instance=ExtResource("2")]
+position = Vector2(520, 235)
+role = 2
+[node name="Hound" parent="." instance=ExtResource("3")]
+position = Vector2(700, 260)

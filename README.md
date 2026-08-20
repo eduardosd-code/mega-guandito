@@ -1,12 +1,12 @@
-# GUANDITO — vertical slice, Fase 2
+# GUANDITO — Vertical Slice: Sector 07
 
-Prototipo 2D de acción/plataformas para **Godot 4.x estable + GDScript**. Esta fase se concentra exclusivamente en game feel y combate: movimiento rápido, decisiones con riesgo e impactos pesados.
+Vertical slice 2D de acción/plataformas para **Godot 4.x estable + GDScript**. Sector 07 conecta el combate de Fase 2 con un capítulo industrial continuo de siete zonas.
 
 ## Abrir y ejecutar
 
 1. Instala Godot 4.x estable compatible con el formato 4.7 del proyecto.
 2. Importa esta carpeta mediante `project.godot`.
-3. Pulsa **F5** para ejecutar `scenes/levels/test_arena.tscn`.
+3. Pulsa **F5** para ejecutar `scenes/levels/sector07.tscn`.
 
 Resolución lógica: **480 × 270**. Ventana inicial: 960 × 540. El proyecto usa viewport stretch, nearest-neighbor y pixel snapping.
 
@@ -83,11 +83,29 @@ scripts/effects/impact_fx.gd                flashes, ondas y audio placeholder
 scripts/systems/pixel_camera.gd             follow + shake reutilizable
 scripts/systems/game_manager.gd             FX, shake y debug
 scripts/ui/hud.gd                           HUD normal + combat debug
+scenes/levels/sector07.tscn                 capítulo principal
+scripts/levels/sector07.gd                  layout procedural y progresión
+scripts/level/                               checkpoints, puertas, elevadores y triggers
+scripts/enemies/sector_enemy.gd             Scrapper, Bulwark y Sentry
+scripts/enemies/vlr03_hound.gd              miniboss de cuatro patrones
+scripts/audio/industrial_ambience.gd         ambiente procedural placeholder
 ```
 
 ## Concept art
 
-La referencia oficial sigue siendo `assets/characters/guandito/ConcepArt_Protagonista.png`. El placeholder reproduce casco/visor, reactor, verdes militares, grafito, blanco metálico, cable, botas y ahora el **Martillo de Pulso Cinético** industrial mostrado en el concept. No se extrajeron sprites finales automáticamente.
+Las referencias oficiales son `assets/concept/assetsconceptguandito_concept.png.png` y `assets/concept/assetsconceptsector_07_level_design.png.png`. Los placeholders respetan su recorrido, paleta, siluetas enemigas y Martillo de Pulso Cinético. No se extrajeron sprites finales automáticamente.
+
+## Sector 07
+
+1. **Sótano — Despertar:** espacio seguro para movimiento, salto y lectura ambiental.
+2. **Primer Contacto:** dos Scrappers enseñan el combo.
+3. **Sala de Bombeo:** elevador, plataformas móviles, Scrapper y Sentries para dash/cancel.
+4. **Conductos:** pasarelas superiores, dos rutas breves y recompensas de XP.
+5. **Ensamblaje:** encuentro combinado con Scrapper, Bulwark y Sentry.
+6. **VLR-03 HOUND:** carga, salto con impacto, garra y ráfaga. Su derrota genera el módulo.
+7. **Salida:** el módulo abre la compuerta; un Sentry permite practicar dodge antes de revelar KORA y La Aguja.
+
+Checkpoints: después de Primer Contacto, después de Conductos, antes del HOUND y tras la recompensa.
 
 ## Validación y limitaciones
 
@@ -102,4 +120,5 @@ Ejecutar pruebas automatizadas:
 
 ```powershell
 Godot_v4.7.2-stable_win64.exe --headless --path . --script res://tests/combat_phase2_smoke.gd
+Godot_v4.7.2-stable_win64.exe --headless --path . --script res://tests/sector07_smoke.gd
 ```

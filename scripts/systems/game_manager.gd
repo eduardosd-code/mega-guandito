@@ -2,6 +2,15 @@ class_name GameManager
 extends Node
 
 const IMPACT_FX := preload("res://scripts/effects/impact_fx.gd")
+const ACTION_FX := {
+	"light": preload("res://scenes/effects/impact_light_fx.tscn"),
+	"kinetic": preload("res://scenes/effects/kinetic_pulse_fx.tscn"),
+	"heavy": preload("res://scenes/effects/heavy_impact_fx.tscn"),
+	"dash_trail": preload("res://scenes/effects/dash_trail_fx.tscn"),
+	"dodge_trail": preload("res://scenes/effects/dodge_trail_fx.tscn"),
+	"exposed": preload("res://scenes/effects/exposed_fx.tscn"),
+	"module_install": preload("res://scenes/effects/module_install_fx.tscn")
+}
 var debug_shapes := false
 var debug_hud_visible := true
 
@@ -33,10 +42,24 @@ func _unhandled_input(event: InputEvent) -> void:
 			node.visible = debug_hud_visible
 
 func spawn_impact(world_position: Vector2, kind: String) -> void:
+	if ACTION_FX.has(kind):
+		var action_effect: Node2D = ACTION_FX[kind].instantiate() as Node2D
+		get_parent().add_child(action_effect)
+		action_effect.global_position = world_position
+		action_effect.setup()
+		return
 	var effect := IMPACT_FX.new() as ImpactFX
 	get_parent().add_child(effect)
 	effect.global_position = world_position
 	effect.setup(kind)
+
+func spawn_player_fx(world_position: Vector2, kind: String, facing: float) -> void:
+	if not ACTION_FX.has(kind):
+		return
+	var effect: Node2D = ACTION_FX[kind].instantiate() as Node2D
+	get_parent().add_child(effect)
+	effect.global_position = world_position
+	effect.setup(facing)
 
 func screen_shake(intensity: float, duration: float) -> void:
 	var camera := get_viewport().get_camera_2d()

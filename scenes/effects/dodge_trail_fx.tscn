@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://scripts/effects/guandito_action_fx.gd" type="Script" id="1"]
+
+[node name="DodgeTrailFX" type="Node2D"]
+z_index = -1
+script = ExtResource("1")
+kind = "dodge_trail"
+lifetime = 0.25
