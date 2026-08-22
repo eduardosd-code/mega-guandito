@@ -5,20 +5,24 @@ signal module_status(text: String)
 signal perfect_evade(total: int)
 
 @export_group("Ground Movement")
-@export var walk_speed := 92.0
-@export var run_speed := 145.0
-@export var acceleration := 850.0
-@export var deceleration := 1050.0
-@export var jump_force := -270.0
+@export var walk_speed := 125.0
+@export var run_speed := 175.0
+@export var acceleration := 2800.0
+@export var turn_acceleration := 4200.0
+@export var deceleration := 3200.0
+@export var jump_force := -330.0
 @export var gravity := 850.0
+@export var rise_gravity_multiplier := 0.88
+@export var fall_gravity_multiplier := 1.18
 @export var max_fall_speed := 440.0
 @export var coyote_time := 0.11
 @export var jump_buffer_time := 0.12
 
 @export_group("Air Control")
-@export var air_acceleration := 500.0
-@export var air_deceleration := 310.0
-@export var air_max_speed := 118.0
+@export var air_acceleration := 1000.0
+@export var air_turn_acceleration := 1600.0
+@export var air_deceleration := 240.0
+@export var air_max_speed := 145.0
 
 @export_group("Ground Dash")
 @export var dash_speed := 265.0
@@ -76,11 +80,12 @@ var dodge_cooldown_left := 0.0
 var perfect_evade_count := 0
 var base_max_health := 100
 var base_reactor := 10
-var base_walk := 92.0
-var base_run := 145.0
+var base_walk := 125.0
+var base_run := 175.0
 var base_dash := 265.0
 var was_airborne := false
 var input_lock_left := 0.0
+var dash_jumped_this_frame := false
 
 func _ready() -> void:
 	add_to_group("player")
@@ -96,6 +101,7 @@ func _ready() -> void:
 	visual.set_action(&"idle", facing)
 
 func _physics_process(delta: float) -> void:
+	dash_jumped_this_frame = false
 	if hitstop_left > 0.0:
 		hitstop_left = maxf(0.0, hitstop_left - delta)
 		return
@@ -120,7 +126,7 @@ func _physics_process(delta: float) -> void:
 	elif dash_left > 0.0:
 		state_machine.change(&"dash")
 		velocity = Vector2(facing * dash_speed, 0.0)
-	else:
+	elif not dash_jumped_this_frame:
 		_handle_movement(delta)
 	_apply_gravity(delta)
 	move_and_slide()
@@ -148,7 +154,14 @@ func _tick_timers(delta: float) -> void:
 func _handle_actions() -> void:
 	if Input.is_action_just_pressed("jump"):
 		jump_buffer_left = jump_buffer_time
-	if jump_buffer_left > 0.0 and (is_on_floor() or coyote_left > 0.0) and _can_move():
+	if Input.is_action_just_pressed("dash") and is_on_floor() and dash_cooldown_left <= 0.0 and not attacking and dodge_phase == &"normal":
+		_update_facing_from_input()
+		_start_dash()
+	if jump_buffer_left > 0.0 and (is_on_floor() or coyote_left > 0.0) and (_can_move() or dash_left > 0.0):
+		if dash_left > 0.0:
+			velocity.x = facing * dash_speed
+			dash_left = 0.0
+			dash_jumped_this_frame = true
 		velocity.y = jump_force
 		jump_buffer_left = 0.0
 		coyote_left = 0.0
@@ -156,9 +169,8 @@ func _handle_actions() -> void:
 		visual.set_action(&"jump_start", facing)
 	if Input.is_action_just_released("jump") and velocity.y < 0.0:
 		velocity.y *= 0.48
-	if Input.is_action_just_pressed("dash") and is_on_floor() and dash_cooldown_left <= 0.0 and not attacking and dodge_phase == &"normal":
-		_start_dash()
 	if Input.is_action_just_pressed("dodge"):
+		_update_facing_from_input()
 		_try_start_dodge()
 	if Input.is_action_just_pressed("attack_light"):
 		_handle_light_input()
@@ -197,12 +209,15 @@ func _handle_movement(delta: float) -> void:
 		facing = signf(axis)
 		if is_on_floor():
 			var target := axis * (run_speed if Input.is_action_pressed("run") else walk_speed)
-			velocity.x = move_toward(velocity.x, target, acceleration * delta)
+			var ground_response := turn_acceleration if velocity.x != 0.0 and signf(velocity.x) != signf(axis) else acceleration
+			velocity.x = move_toward(velocity.x, target, ground_response * delta)
 			if not attacking:
 				state_machine.change(&"run")
 				_set_visual_action(&"run")
 		else:
-			velocity.x = move_toward(velocity.x, axis * air_max_speed, air_acceleration * delta)
+			var air_response := air_turn_acceleration if velocity.x != 0.0 and signf(velocity.x) != signf(axis) else air_acceleration
+			var carried_speed := maxf(air_max_speed, absf(velocity.x)) if signf(velocity.x) == signf(axis) else air_max_speed
+			velocity.x = move_toward(velocity.x, axis * carried_speed, air_response * delta)
 	elif is_on_floor():
 		velocity.x = move_toward(velocity.x, 0.0, deceleration * delta)
 		if not attacking:
@@ -216,7 +231,14 @@ func _handle_movement(delta: float) -> void:
 
 func _apply_gravity(delta: float) -> void:
 	if not is_on_floor() and dash_left <= 0.0 and dodge_phase not in [&"startup", &"evade"]:
-		velocity.y = minf(max_fall_speed, velocity.y + gravity * delta)
+		var gravity_multiplier := rise_gravity_multiplier if velocity.y < 0.0 and Input.is_action_pressed("jump") else fall_gravity_multiplier
+		velocity.y = minf(max_fall_speed, velocity.y + gravity * gravity_multiplier * delta)
+
+func _update_facing_from_input() -> void:
+	var axis := Input.get_axis("move_left", "move_right")
+	if not is_zero_approx(axis):
+		facing = signf(axis)
+		visual.facing = facing
 
 func _update_ground_state() -> void:
 	if is_on_floor():
