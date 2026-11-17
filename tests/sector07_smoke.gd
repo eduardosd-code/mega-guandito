@@ -14,7 +14,19 @@ func _run() -> void:
 	var sector := SECTOR.instantiate() as Sector07; root.add_child(sector); await _frames(6)
 	var player := get_first_node_in_group("player") as GuanditoPlayer
 	_check(player != null,"Sector 07 instantiates Guandito")
-	_check(get_nodes_in_group("sector_enemies").size() == 11,"level contains planned regular enemy encounters")
+	var environment := sector.get_node_or_null("Environment")
+	_check(environment != null,"Sector 07 instantiates the environment art pass")
+	for layer_name in ["ParallaxFar","ParallaxMid","BackgroundProps","GameplayTiles","GameplayProps","Interactive","FX","Foreground","Lighting"]:
+		_check(environment.get_node_or_null(layer_name) != null,"environment layer exists: " + layer_name)
+	var tile_set := load("res://art/environment/sector07/tiles/Sector07TileSet.tres") as TileSet
+	_check(tile_set != null and tile_set.tile_size == Vector2i(32,32),"Sector 07 uses a 32x32 structural TileSet")
+	var structure_source := tile_set.get_source(0) as TileSetAtlasSource if tile_set != null and tile_set.has_source(0) else null
+	_check(structure_source != null and structure_source.get_tiles_count() == 176,"Sector 07 registers all 176 source structure tiles")
+	for generated_path in ["res://art/environment/sector07/generated/sector07_animated_fx_v1.png","res://art/environment/sector07/generated/sector07_foreground_decals_v1.png"]:
+		var generated_image := Image.load_from_file(ProjectSettings.globalize_path(generated_path))
+		_check(generated_image != null and generated_image.get_size() == Vector2i(1536,1024),"generated environment atlas is available: " + generated_path.get_file())
+		_check(generated_image != null and generated_image.get_pixel(0,0).a == 0.0,"generated environment atlas keeps transparent gutters: " + generated_path.get_file())
+	_check(get_nodes_in_group("sector_enemies").size() == 18,"level contains planned regular enemy encounters")
 	var roles := {}; for enemy in get_nodes_in_group("sector_enemies"): roles[enemy.role] = true; enemy.set_physics_process(false)
 	_check(roles.has(SectorEnemy.Role.SCRAPPER),"Scrapper is present")
 	_check(roles.has(SectorEnemy.Role.BULWARK),"Bulwark is present")
@@ -34,7 +46,7 @@ func _run() -> void:
 	player.facing = -1
 	await process_frame
 	await process_frame
-	_check(absf(camera.global_position.x - camera_x_before_turn) < 20.0,"camera eases direction changes without snapping")
+	_check(absf(camera.global_position.x - camera_x_before_turn) < camera.look_ahead * 2.0,"camera eases direction changes without snapping")
 	player.global_position = start_position
 	player.facing = 1
 	camera.reset_to_target()
@@ -62,7 +74,7 @@ func _run() -> void:
 	var hound := get_first_node_in_group("boss") as VLR03Hound
 	_check(hound.state != &"dormant","boss activates on arena approach")
 	_check(not sector.boss_door.opened,"surface door stays locked before reward")
-	hound.health.take_damage(9999); await _frames(2)
+	hound.health.take_damage(9999); await _frames(60)
 	var pickup: ModulePickup
 	for child in sector.get_children(): if child is ModulePickup: pickup = child
 	_check(pickup != null,"boss defeat spawns Overdrive Evasion pickup")

@@ -59,6 +59,8 @@ Una posible mecánica futura permitiría generar impulso mediante movimiento agr
 
 Realizar una sesión manual de 15–20 minutos con teclado y mando. Registrar especialmente fallos de input, distancia recorrida por Dash→Light, frecuencia de Perfect Evade y si Heavy resulta castigable. Ajustar primero tiempos y velocidades; después producir animaciones, VFX y SFX más elaborados.
 
+La telemetría de playtest (`scripts/systems/playtest_recorder.gd`) ya registra automáticamente esas cuatro métricas en cada sesión con ventana (informe JSON en `artifacts/playtest/`), de modo que la sesión humana se dedica a juzgar la sensación y el informe aporta los números para ajustar.
+
 ## Sector 07 — Instalación Abandonada
 
 Sector 07 es un escape ascendente mediante avance horizontal, elevadores, pasarelas y cambios de cota; no una subida vertical continua. El recorrido sigue el concept oficial: despertar → contacto → bombeo → conductos → ensamblaje → HOUND → superficie.

@@ -3,6 +3,7 @@ extends Node2D
 
 const ENEMY := preload("res://scenes/enemies/sector_enemy.tscn")
 const HOUND := preload("res://scenes/enemies/vlr03_hound.tscn")
+const INDUSTRIAL_HAZARD := preload("res://scripts/level/industrial_hazard.gd")
 @onready var player: GuanditoPlayer = $Guandito
 var checkpoint_position := Vector2(110, 185)
 var hound: VLR03Hound
@@ -10,20 +11,38 @@ var boss_started := false
 var boss_defeated := false
 var elapsed := 0.0
 var boss_door: DoorTransition
+var assembly_arena: CombatArena
+var assembly_entry_door: DoorTransition
+var regular_spawn_specs: Array[Dictionary] = []
+var active_enemies: Dictionary = {}
+var defeated_enemy_ids: Dictionary = {}
+var checkpoint_defeated_ids: Dictionary = {}
+var checkpoint_segment := 0
+var checkpoint_xp := 0
+var checkpoint_level := 1
+var respawning := false
+var intro_finished := false
+var intro_skipped := false
+var intro_layer: CanvasLayer
+var level_complete := false
 
 func _ready() -> void:
 	_build_geometry()
 	_build_progression()
 	_spawn_encounters()
+	_configure_assembly_arena()
 	player.health.died.connect(_on_player_died)
 	var camera := player.get_node("Camera2D") as Camera2D
 	camera.limit_left = 0; camera.limit_right = 5750; camera.limit_top = 0; camera.limit_bottom = 300
 	player.module_status.emit("SECTOR 07 // INSTALACION ABANDONADA")
+	_start_wakeup_sequence()
 
 func _process(delta: float) -> void:
 	elapsed += delta; queue_redraw()
-	if not boss_started and player.global_position.x > 4310:
-		boss_started = true; hound.activate(); player.module_status.emit("ALERTA: UNIDAD VLR-03 HOUND")
+	if not boss_started and not boss_defeated and player.global_position.x > 4310:
+		_start_hound_encounter()
+	if not level_complete and boss_defeated and player.global_position.x > 5580:
+		_complete_level()
 	if player.global_position.y > 340 and player.health.current_health > 0:
 		player.respawn_at(checkpoint_position)
 
@@ -38,6 +57,8 @@ func _build_geometry() -> void:
 	for platform in [Rect2(2500,145,130,12),Rect2(2690,105,130,12),Rect2(2880,145,160,12),Rect2(3550,125,120,12),Rect2(3790,105,140,12)]: _add_platform(platform)
 	_add_moving_platform(Vector2(2225,190),Vector2(105,-55),2.6)
 	_add_moving_platform(Vector2(3150,165),Vector2(90,0),2.1)
+	for hazard_position in [Vector2(1605,190), Vector2(1875,160), Vector2(2350,175)]:
+		var hazard: Area2D = INDUSTRIAL_HAZARD.new(); hazard.position = hazard_position; add_child(hazard)
 
 func _build_progression() -> void:
 	_message_trigger(Vector2(160,150),"SISTEMAS GND-01 RESTAURADOS // A/D MOVER // SPACE SALTAR")
@@ -54,26 +75,54 @@ func _build_progression() -> void:
 	_add_elevator(Vector2(1355,180),Vector2(185,-28),"ELEVADOR DE BOMBEO")
 	_add_elevator(Vector2(3270,170),Vector2(150,-18),"MONTACARGAS DE ENSAMBLAJE")
 	_add_camera_zone(Vector2(5280,80),Vector2(260,180),Vector2(0.88,0.88))
-	boss_door = _add_door(Vector2(5005,140))
+	boss_door = _add_door(Vector2(5005,140), "security")
 	_add_arena(Vector2(930,155),Vector2(560,180),&"first_contact")
-	_add_arena(Vector2(3800,135),Vector2(820,200),&"assembly")
+	assembly_entry_door = _add_door(Vector2(3790,140), "industrial"); assembly_entry_door.open()
+	assembly_arena = _add_arena(Vector2(4020,135),Vector2(450,200),&"assembly_final")
 
 func _spawn_encounters() -> void:
-	# Zone 2: organic melee introduction.
-	_spawn_enemy(Vector2(820,185),SectorEnemy.Role.SCRAPPER); _spawn_enemy(Vector2(1060,185),SectorEnemy.Role.SCRAPPER)
-	# Zone 3: ranged pressure around moving machinery.
-	_spawn_enemy(Vector2(1720,155),SectorEnemy.Role.SCRAPPER); _spawn_enemy(Vector2(1990,155),SectorEnemy.Role.SENTRY); _spawn_enemy(Vector2(2390,170),SectorEnemy.Role.SENTRY)
-	# Zone 4 optional guardians.
-	_spawn_enemy(Vector2(2860,170),SectorEnemy.Role.SCRAPPER)
-	# Zone 5 assembly arena mixes all roles.
-	_spawn_enemy(Vector2(3470,150),SectorEnemy.Role.SCRAPPER); _spawn_enemy(Vector2(3690,150),SectorEnemy.Role.BULWARK)
-	_spawn_enemy(Vector2(3950,150),SectorEnemy.Role.SENTRY); _spawn_enemy(Vector2(4120,150),SectorEnemy.Role.SCRAPPER)
-	hound = HOUND.instantiate() as VLR03Hound; add_child(hound); hound.position = Vector2(4660,175); hound.defeated.connect(_on_hound_defeated)
-	# Zone 7 confirms dodge through a highly visible ranged telegraph.
-	_spawn_enemy(Vector2(5310,135),SectorEnemy.Role.SENTRY)
+	regular_spawn_specs = [
+		# Zone 2: one Scrapper, breathing room, then a pair.
+		{"id": &"contact_1", "position": Vector2(760,185), "role": SectorEnemy.Role.SCRAPPER, "segment": 0},
+		{"id": &"contact_2a", "position": Vector2(1030,185), "role": SectorEnemy.Role.SCRAPPER, "segment": 0},
+		{"id": &"contact_2b", "position": Vector2(1135,185), "role": SectorEnemy.Role.SCRAPPER, "segment": 0},
+		# Zone 3: readable Sentry introduction, then melee plus ranged pressure.
+		{"id": &"pump_sentry", "position": Vector2(1740,150), "role": SectorEnemy.Role.SENTRY, "segment": 1},
+		{"id": &"pump_scrapper", "position": Vector2(2070,155), "role": SectorEnemy.Role.SCRAPPER, "segment": 1},
+		{"id": &"pump_mix_sentry", "position": Vector2(2190,145), "role": SectorEnemy.Role.SENTRY, "segment": 1},
+		# Zone 4: optional-route guardian.
+		{"id": &"service_optional", "position": Vector2(2860,170), "role": SectorEnemy.Role.SCRAPPER, "segment": 1},
+		# Zone 5: solo Bulwark, mixed drill, positioning drill, final arena.
+		{"id": &"assembly_bulwark", "position": Vector2(3425,150), "role": SectorEnemy.Role.BULWARK, "segment": 2},
+		{"id": &"assembly_mix_b", "position": Vector2(3585,150), "role": SectorEnemy.Role.BULWARK, "segment": 2},
+		{"id": &"assembly_mix_s", "position": Vector2(3675,150), "role": SectorEnemy.Role.SCRAPPER, "segment": 2},
+		{"id": &"assembly_position_s1", "position": Vector2(3820,150), "role": SectorEnemy.Role.SCRAPPER, "segment": 2},
+		{"id": &"assembly_position_s2", "position": Vector2(3890,150), "role": SectorEnemy.Role.SCRAPPER, "segment": 2},
+		{"id": &"assembly_position_r", "position": Vector2(3970,140), "role": SectorEnemy.Role.SENTRY, "segment": 2},
+		{"id": &"assembly_final_s1", "position": Vector2(4020,150), "role": SectorEnemy.Role.SCRAPPER, "segment": 2, "arena": true},
+		{"id": &"assembly_final_s2", "position": Vector2(4090,150), "role": SectorEnemy.Role.SCRAPPER, "segment": 2, "arena": true},
+		{"id": &"assembly_final_b", "position": Vector2(4160,150), "role": SectorEnemy.Role.BULWARK, "segment": 2, "arena": true},
+		{"id": &"assembly_final_r", "position": Vector2(4220,140), "role": SectorEnemy.Role.SENTRY, "segment": 2, "arena": true},
+		# Zone 7: safe dodge practice after the reward.
+		{"id": &"dodge_tutorial", "position": Vector2(5310,135), "role": SectorEnemy.Role.SENTRY, "segment": 4}
+	]
+	for spec in regular_spawn_specs: _spawn_from_spec(spec)
+	_spawn_hound()
 
 func _spawn_enemy(where: Vector2, role: int) -> SectorEnemy:
 	var enemy := ENEMY.instantiate() as SectorEnemy; enemy.role = role; add_child(enemy); enemy.position = where; return enemy
+
+func _spawn_from_spec(spec: Dictionary) -> SectorEnemy:
+	var enemy := _spawn_enemy(spec["position"], spec["role"])
+	var spawn_id: StringName = spec["id"]
+	enemy.set_meta(&"spawn_id", spawn_id)
+	enemy.defeated.connect(_on_regular_enemy_defeated)
+	active_enemies[spawn_id] = enemy
+	return enemy
+
+func _spawn_hound() -> void:
+	if boss_defeated: return
+	hound = HOUND.instantiate() as VLR03Hound; add_child(hound); hound.position = Vector2(4660,175); hound.defeated.connect(_on_hound_defeated)
 
 func _add_floor(top_left: Vector2, size: Vector2) -> void:
 	var body := StaticBody2D.new(); body.collision_layer = 16; body.collision_mask = 0; body.position = top_left + size * 0.5
@@ -97,27 +146,120 @@ func _add_camera_zone(where: Vector2, size: Vector2, target_zoom: Vector2) -> vo
 	var zone := CameraZone.new(); zone.position = where; zone.zoom = target_zoom
 	var collision := CollisionShape2D.new(); var shape := RectangleShape2D.new(); shape.size = size; collision.shape = shape; zone.add_child(collision); add_child(zone)
 
-func _add_door(where: Vector2) -> DoorTransition:
-	var door := DoorTransition.new(); door.position = where
+func _add_door(where: Vector2, style: String = "maintenance") -> DoorTransition:
+	var door := DoorTransition.new(); door.position = where; door.door_style = style
 	var collision := CollisionShape2D.new(); collision.name = "CollisionShape2D"; var shape := RectangleShape2D.new(); shape.size = Vector2(24,148); collision.shape = shape; door.add_child(collision); add_child(door); return door
 
-func _add_arena(where: Vector2, size: Vector2, id: StringName) -> void:
+func _add_arena(where: Vector2, size: Vector2, id: StringName) -> CombatArena:
 	var arena := CombatArena.new(); arena.position = where; arena.bounds = Rect2(-size*0.5,size); arena.arena_id = id; add_child(arena)
 	arena.entered.connect(func(value): player.module_status.emit("ARENA // %s" % value.arena_id.to_upper()))
+	arena.cleared.connect(func(value): player.module_status.emit("AREA DESPEJADA // %s" % value.arena_id.to_upper()))
+	return arena
 
 func _on_checkpoint(checkpoint: Checkpoint) -> void:
-	checkpoint_position = checkpoint.global_position; player.module_status.emit("CHECKPOINT // %s" % checkpoint.checkpoint_id.to_upper())
+	checkpoint_position = checkpoint.global_position
+	checkpoint_segment = {&"cp_contact": 1, &"cp_service": 2, &"cp_boss": 3, &"cp_reward": 4}.get(checkpoint.checkpoint_id, checkpoint_segment)
+	checkpoint_defeated_ids = defeated_enemy_ids.duplicate()
+	checkpoint_xp = player.experience.current_xp
+	checkpoint_level = player.experience.current_level
+	player.module_status.emit("CHECKPOINT // %s" % checkpoint.checkpoint_id.to_upper())
 
 func _on_player_died() -> void:
+	if respawning: return
+	respawning = true
 	await get_tree().create_timer(1.0, false).timeout
+	_restore_checkpoint_state()
 	player.respawn_at(checkpoint_position)
+	respawning = false
 
 func _on_hound_defeated() -> void:
-	boss_defeated = true; player.add_xp(120); player.module_status.emit("VLR-03 DESACTIVADO // MODULO DETECTADO")
+	boss_defeated = true; boss_started = false; player.module_status.emit("VLR-03 DESACTIVADO // COMPONENTE DETECTADO")
 	var pickup := ModulePickup.new(); pickup.position = Vector2(4780,180); add_child(pickup)
-	pickup.collected.connect(func(): player.module_status.emit("SOBRECARGA EVASIVA INSTALADA // Q / RB"); boss_door.open())
+	pickup.collected.connect(_on_module_collected)
+
+func _on_regular_enemy_defeated(enemy: SectorEnemy) -> void:
+	var spawn_id: StringName = enemy.get_meta(&"spawn_id", &"")
+	if spawn_id != &"":
+		defeated_enemy_ids[spawn_id] = true
+		active_enemies.erase(spawn_id)
+
+func _configure_assembly_arena() -> void:
+	var final_enemies: Array[Node] = []
+	for spec in regular_spawn_specs:
+		if spec.get("arena", false):
+			var enemy: Node = active_enemies.get(spec["id"])
+			if is_instance_valid(enemy): final_enemies.append(enemy)
+	assembly_arena.configure(final_enemies, [assembly_entry_door])
+
+func _restore_checkpoint_state() -> void:
+	player.experience.current_level = checkpoint_level
+	player.experience.current_xp = checkpoint_xp
+	player.experience._emit_all()
+	defeated_enemy_ids = checkpoint_defeated_ids.duplicate()
+	for enemy in get_tree().get_nodes_in_group("sector_enemies"):
+		enemy.get_parent().remove_child(enemy); enemy.queue_free()
+	active_enemies.clear()
+	for spec in regular_spawn_specs:
+		if not defeated_enemy_ids.has(spec["id"]): _spawn_from_spec(spec)
+	if assembly_arena:
+		_configure_assembly_arena()
+	if not boss_defeated:
+		if is_instance_valid(hound): hound.get_parent().remove_child(hound); hound.queue_free()
+		_spawn_hound(); boss_started = false
+	for projectile in get_tree().get_nodes_in_group("enemy_projectiles"): projectile.queue_free()
+
+func _start_hound_encounter() -> void:
+	boss_started = true
+	player.module_status.emit("ALERTA DE SEGURIDAD // VLR-03")
+	if is_instance_valid(hound): hound.activate()
+	await get_tree().create_timer(0.7, false).timeout
+	if is_instance_valid(hound):
+		player.module_status.emit("VLR-03 HOUND // SECURITY UNIT")
+
+func _on_module_collected() -> void:
+	boss_door.open()
+	player.module_status.emit("VLR ACTUATOR SYSTEM // COMPATIBILITY: 94%")
+	await get_tree().create_timer(1.0, false).timeout
+	player.module_status.emit("SOBRECARGA EVASIVA Mk-I // UNLOCKED // Q / RB")
+
+func _start_wakeup_sequence() -> void:
+	player.input_lock_left = 4.8
+	intro_layer = CanvasLayer.new(); intro_layer.layer = 20; add_child(intro_layer)
+	var darkness := ColorRect.new(); darkness.color = Color.BLACK; darkness.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); intro_layer.add_child(darkness)
+	var label := Label.new(); label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER; label.add_theme_color_override("font_color", Color("#9be84b")); label.add_theme_font_size_override("font_size", 15); intro_layer.add_child(label)
+	var messages := ["GND-01", "POWER CORE... ONLINE", "MOTOR SYSTEMS... ONLINE", "MEMORY... ERROR", "CONTROL RESTORED"]
+	for message in messages:
+		if intro_skipped: return
+		label.text = message
+		player.module_status.emit(message)
+		await get_tree().create_timer(0.8, false).timeout
+	if intro_skipped: return
+	var tween := create_tween(); tween.tween_property(intro_layer, "modulate:a", 0.0, 0.5); await tween.finished
+	intro_layer.queue_free()
+	intro_finished = true
+
+func _complete_level() -> void:
+	level_complete = true
+	player.module_status.emit("KORA // EXTERIOR DETECTADO // LA AGUJA")
+	await get_tree().create_timer(1.4, false).timeout
+	player.module_status.emit("SECTOR 07 // ESCAPE COMPLETE")
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not intro_finished and event.is_pressed():
+		intro_skipped = true; intro_finished = true; player.input_lock_left = 0.0
+		if is_instance_valid(intro_layer): intro_layer.queue_free()
+		return
+	if not OS.is_debug_build() or not event is InputEventKey or not event.pressed: return
+	match event.keycode:
+		KEY_F2: player.health.heal(player.health.max_health)
+		KEY_F3:
+			var next_positions := [Vector2(1250,185), Vector2(3040,170), Vector2(4250,180), Vector2(5020,135)]
+			player.respawn_at(next_positions[mini(checkpoint_segment, next_positions.size() - 1)])
+		KEY_F4: player.respawn_at(Vector2(4380,175))
+		KEY_F5: player.unlock_evasion_module(true)
 
 func _draw() -> void:
+	if get_node_or_null("Environment") != null: return
 	draw_rect(Rect2(0,0,5750,280),Color("#080e12"))
 	# Parallax-like industrial silhouettes, pipes and emergency fixtures.
 	for x in range(0,5050,180):

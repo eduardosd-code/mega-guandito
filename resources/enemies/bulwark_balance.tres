@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EnemyBalanceData" load_steps=2 format=3]
+[ext_resource path="res://resources/enemies/enemy_balance_data.gd" type="Script" id="1"]
+[resource]
+script = ExtResource("1")
+enemy_id = &"crg12_bulwark"
+max_health = 140
+xp_reward = 40
+move_speed = 34.0
+detection_range = 330.0
+preferred_range = 58.0
+attack_cooldown = 1.25
+position_time = 0.24
+attack_1_damage = 22
+attack_2_damage = 25
+attack_3_damage = 18
+attack_1_startup = 0.55
+attack_2_startup = 0.58
+attack_3_startup = 0.28
+attack_1_recovery = 0.52
+attack_2_recovery = 0.42
+attack_3_recovery = 0.38
+charge_speed = 175.0
+armor_break_duration = 1.5

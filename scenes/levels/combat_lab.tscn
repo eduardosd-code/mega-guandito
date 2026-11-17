@@ -1,0 +1,60 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource path="res://scripts/levels/combat_lab.gd" type="Script" id="1"]
+[ext_resource path="res://scripts/systems/game_manager.gd" type="Script" id="2"]
+
+[sub_resource type="RectangleShape2D" id="Floor"]
+size = Vector2(960, 50)
+[sub_resource type="RectangleShape2D" id="Wall"]
+size = Vector2(30, 270)
+
+[node name="CombatLab" type="Node2D"]
+script = ExtResource("1")
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("2")
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(480, 245)
+collision_layer = 16
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("Floor")
+
+[node name="LeftWall" type="StaticBody2D" parent="."]
+position = Vector2(-15, 135)
+collision_layer = 16
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
+shape = SubResource("Wall")
+
+[node name="RightWall" type="StaticBody2D" parent="."]
+position = Vector2(975, 135)
+collision_layer = 16
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWall"]
+shape = SubResource("Wall")
+
+[node name="DebugHUD" type="CanvasLayer" parent="."]
+layer = 20
+[node name="Panel" type="ColorRect" parent="DebugHUD"]
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 474.0
+offset_bottom = 42.0
+color = Color(0.015, 0.04, 0.045, 0.9)
+[node name="Status" type="Label" parent="DebugHUD/Panel"]
+offset_left = 8.0
+offset_top = 3.0
+offset_right = 458.0
+offset_bottom = 17.0
+theme_override_colors/font_color = Color(0.58, 0.9, 0.2, 1)
+theme_override_font_sizes/font_size = 10
+[node name="Help" type="Label" parent="DebugHUD/Panel"]
+offset_left = 8.0
+offset_top = 18.0
+offset_right = 458.0
+offset_bottom = 33.0
+theme_override_colors/font_color = Color(0.75, 0.8, 0.78, 1)
+theme_override_font_sizes/font_size = 8
+text = "F1 SCRAPPER  F2 BULWARK  F3 SENTRY  F4 HOUND  F5 MIX  F6 CLEAR  F7 HEAL  F8 HITBOX  F9 RESET"

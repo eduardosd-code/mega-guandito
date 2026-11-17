@@ -82,6 +82,7 @@ scripts/enemies/training_bot.gd
 scripts/effects/impact_fx.gd                flashes, ondas y audio placeholder
 scripts/systems/pixel_camera.gd             follow + shake reutilizable
 scripts/systems/game_manager.gd             FX, shake y debug
+scripts/systems/playtest_recorder.gd        telemetría de sesiones (JSON)
 scripts/ui/hud.gd                           HUD normal + combat debug
 scenes/levels/sector07.tscn                 capítulo principal
 scripts/levels/sector07.gd                  layout procedural y progresión
@@ -107,6 +108,10 @@ Las referencias oficiales son `assets/concept/assetsconceptguandito_concept.png.
 
 Checkpoints: después de Primer Contacto, después de Conductos, antes del HOUND y tras la recompensa.
 
+## Telemetría de playtest
+
+En build de desarrollo, toda sesión con ventana graba automáticamente las métricas que exige la sesión manual de diseño: distancia de Dash→Light, frecuencia de Perfect Evade, golpes con daño ×2 por exposición, Heavy castigable (con progreso de startup al ser interrumpido), entradas perdidas por estado y una línea de tiempo. Al cerrar se escribe `artifacts/playtest/playtest_<fecha>.json` y un resumen en consola. Autoguardado cada 20 s. `GUANDITO_PLAYTEST=1` fuerza la grabación en headless.
+
 ## Validación y limitaciones
 
 - Verificado estáticamente: rutas `res://`, inputs semánticos, datos explícitos de ataques, ausencia de dash aéreo y ramas de riesgo del dodge.
@@ -121,4 +126,5 @@ Ejecutar pruebas automatizadas:
 ```powershell
 Godot_v4.7.2-stable_win64.exe --headless --path . --script res://tests/combat_phase2_smoke.gd
 Godot_v4.7.2-stable_win64.exe --headless --path . --script res://tests/sector07_smoke.gd
+Godot_v4.7.2-stable_win64.exe --headless --path . --script res://tests/playtest_recorder_smoke.gd
 ```

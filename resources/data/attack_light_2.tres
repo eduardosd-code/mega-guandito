@@ -11,4 +11,6 @@ active_time = 0.08
 recovery = 0.1
 combo_window = 0.32
 hitstop = 0.032
+hitbox_offset = Vector2(29, 0)
+hitbox_size = Vector2(44, 32)
 impact_fx = "light"

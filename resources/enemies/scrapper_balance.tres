@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EnemyBalanceData" load_steps=2 format=3]
+[ext_resource path="res://resources/enemies/enemy_balance_data.gd" type="Script" id="1"]
+[resource]
+script = ExtResource("1")
+enemy_id = &"mnt04_scrapper"
+max_health = 45
+xp_reward = 15
+move_speed = 76.0
+detection_range = 310.0
+preferred_range = 40.0
+attack_cooldown = 0.82
+position_time = 0.16
+attack_1_damage = 8
+attack_2_damage = 12
+attack_1_startup = 0.12
+attack_2_startup = 0.42
+attack_1_recovery = 0.16
+attack_2_recovery = 0.3
+charge_speed = 205.0

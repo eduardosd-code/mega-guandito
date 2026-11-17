@@ -53,7 +53,13 @@ static func build() -> SpriteFrames:
 		library.add_animation(animation_name)
 		library.set_animation_loop(animation_name, animation_name in LOOPS)
 		library.set_animation_speed(animation_name, FPS[animation_name])
-		if animation_name == &"heavy_recovery":
+		if animation_name == &"light_1":
+			# The reconstructed Light 1 sheet contains detached/incomplete body parts.
+			# Reuse four coherent poses from the matching light-combat set while
+			# preserving Light 1's duration, gameplay data, and 64x64 foot pivot.
+			for frame_index: int in [0, 1, 2, 4]:
+				_add_atlas_frame(library, animation_name, TEXTURES[&"light_2"], frame_index)
+		elif animation_name == &"heavy_recovery":
 			# The first two source poses look like a knockdown. Start at the
 			# impact pose and recover through the three stable standing poses.
 			_add_atlas_frame(library, animation_name, TEXTURES[&"heavy_attack"], 2)

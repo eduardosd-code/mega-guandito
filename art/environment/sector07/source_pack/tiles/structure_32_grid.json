@@ -1,0 +1,10 @@
+{
+  "tile_size": [
+    32,
+    32
+  ],
+  "columns": 16,
+  "rows": 11,
+  "default_collision": false,
+  "note": "Do not infer collision from pixels. Author floor/wall/platform collision deliberately in Godot."
+}

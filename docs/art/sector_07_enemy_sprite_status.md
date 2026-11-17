@@ -2,37 +2,37 @@
 
 Source: `docs/concept/sector_07_enemy_spritesheet.png` (1536×1024 production sheet).
 
-The sheet contains labels, borders, effects, and unevenly spaced poses. Automatic equal-width slicing produced partial bodies, so it was rejected. Runtime atlases currently repeat one conservatively isolated scale-reference pose per enemy. They are intentionally marked `PLACEHOLDER`; no missing art was invented or AI-reconstructed.
+The production sheet contains labels, borders, effects, and unevenly spaced poses. Automatic equal-width slicing produced partial bodies, so it was rejected. Scrapper uses separate transparent concept PNGs; Bulwark, Sentry, and HOUND use their dedicated JPG sheets under `assets/concept/`, with black backgrounds removed deterministically. Source limitations are documented per animation below.
 
 | Enemy | Animation | Status | Frames | Notes |
 | --- | --- | ---: | ---: | --- |
-| Scrapper | idle | PLACEHOLDER | 6 | Stable feet pivot; clean animation frames required. |
-| Scrapper | run | PLACEHOLDER | 8 | Repeated approved silhouette. |
-| Scrapper | attack_1 | PLACEHOLDER | 4 | Gameplay event remains script-driven. |
-| Scrapper | attack_2 | PLACEHOLDER | 5 | Sheet poses cannot be split safely. |
-| Scrapper | hit | PLACEHOLDER | 3 | Repeated approved silhouette. |
-| Scrapper | death | PLACEHOLDER | 6 | Clean death frames required. |
-| Bulwark | idle | PLACEHOLDER | 6 | 96×96 canvas preserves heavy scale. |
-| Bulwark | walk | PLACEHOLDER | 6 | Repeated approved silhouette. |
-| Bulwark | attack_hammer_fist | PLACEHOLDER | 5 | Gameplay event remains script-driven. |
-| Bulwark | attack_charge | PLACEHOLDER | 6 | Trail remains separate from collision. |
-| Bulwark | attack_backhand | PLACEHOLDER | 4 | Arc is not baked into hurtbox. |
-| Bulwark | hit | PLACEHOLDER | 3 | Repeated approved silhouette. |
-| Bulwark | death | PLACEHOLDER | 7 | Clean death frames required. |
-| Sentry | hover_idle | PLACEHOLDER | 6 | Center pivot on 64×64 canvas. |
-| Sentry | move | PLACEHOLDER | 4 | Repeated approved silhouette. |
-| Sentry | pulse_shot | PLACEHOLDER | 5 | Projectile remains an independent node. |
-| Sentry | triple_pulse | PLACEHOLDER | 7 | Gameplay currently uses the validated single-shot behavior. |
-| Sentry | hit | PLACEHOLDER | 3 | Repeated approved silhouette. |
-| Sentry | death | PLACEHOLDER | 6 | Clean death frames required. |
-| HOUND | idle | PLACEHOLDER | 6 | 160×96 canvas preserves its long silhouette. |
-| HOUND | walk_prowl | PLACEHOLDER | 6 | Repeated approved silhouette. |
-| HOUND | charge | PLACEHOLDER | 5 | Existing charge timing unchanged. |
-| HOUND | pounce | PLACEHOLDER | 6 | Existing landing hitbox unchanged. |
-| HOUND | claw_combo | PLACEHOLDER | 6 | Existing claw hitbox unchanged. |
-| HOUND | energy_burst | PLACEHOLDER | 8 | Projectiles remain independent nodes. |
-| HOUND | hit | PLACEHOLDER | 3 | Repeated approved silhouette. |
-| HOUND | death | PLACEHOLDER | 8 | Clean destruction frames required. |
+| Scrapper | idle | COMPLETE | 6 | Reconstructed to 64×64 with stable feet pivot. |
+| Scrapper | run | COMPLETE | 8 | Isolated from transparent concept source. |
+| Scrapper | attack_1 | COMPLETE | 4 | 96×64 visual canvas preserves weapon reach; hitbox remains independent. |
+| Scrapper | attack_2 | COMPLETE | 5 | 96×64 visual canvas preserves weapon reach; hitbox remains independent. |
+| Scrapper | hit | COMPLETE | 3 | Normalized to 64×64. |
+| Scrapper | death | COMPLETE | 6 | Ground-aligned destruction sequence. |
+| Bulwark | idle | COMPLETE | 6 | Reconstructed on a 96×96 canvas with stable feet pivot. |
+| Bulwark | walk | COMPLETE | 6 | Body silhouettes isolated from the JPG row. |
+| Bulwark | attack_hammer_fist | COMPLETE | 5 | 128×96 canvas; detached impact debris excluded where possible. |
+| Bulwark | attack_charge | NEEDS_CLEANUP | 6 | Two overlapping source poses were replaced by adjacent clean poses; trail remains separate from collision. |
+| Bulwark | attack_backhand | COMPLETE | 4 | 128×96 canvas; arc does not affect the hurtbox. |
+| Bulwark | hit | COMPLETE | 3 | Normalized to 96×96. |
+| Bulwark | death | COMPLETE | 7 | 128×96 ground-aligned destruction sequence. |
+| Sentry | hover_idle | COMPLETE | 6 | Center pivot on 64×64 canvas. |
+| Sentry | move | COMPLETE | 4 | Center-aligned floating movement. |
+| Sentry | pulse_shot | COMPLETE | 5 | Muzzle state retained; projectile remains an independent node. |
+| Sentry | triple_pulse | COMPLETE | 7 | Visual sequence ready; gameplay retains validated firing behavior. |
+| Sentry | hit | COMPLETE | 3 | Detached impact particles excluded from the body where possible. |
+| Sentry | death | COMPLETE | 6 | 96×64 canvas preserves destruction fragments. |
+| HOUND | idle | COMPLETE | 6 | 160×96 canvas preserves its long silhouette and support pivot. |
+| HOUND | walk_prowl | COMPLETE | 6 | Six isolated prowl poses. |
+| HOUND | charge | COMPLETE | 5 | Five source poses selected; gameplay timing unchanged. |
+| HOUND | pounce | COMPLETE | 6 | Six airborne poses; landing hitbox remains independent. |
+| HOUND | claw_combo | COMPLETE | 6 | Six body poses; claw hitbox remains independent. |
+| HOUND | energy_burst | COMPLETE | 8 | Six source poses plus two authored recovery poses; projectile remains independent. |
+| HOUND | hit | COMPLETE | 3 | Dedicated authored recoil progression, normalized to the existing 160×96 canvas. |
+| HOUND | death | COMPLETE | 8 | Six source destruction poses plus two authored terminal collapse poses. |
 
 ## Import and collision policy
 
@@ -44,4 +44,4 @@ The sheet contains labels, borders, effects, and unevenly spaced poses. Automati
 
 ## Replacement workflow
 
-Run `tools/build_sector07_enemy_sprites.ps1` after replacing the production sheet or adjusting verified source bounds. Clean animator-exported frames should replace the placeholder atlases without changing the scene or gameplay architecture.
+Run `tools/build_hound_from_concept.ps1` to rebuild the HOUND atlases from the original production source and `assets/concept/HOUND/VLR-03_HOUND_cleanup_source.png`. The cleanup source supplies only the missing hit and transition poses; the build preserves the existing frame counts, 160×96 canvas, bottom pivot, scene setup, and gameplay architecture.

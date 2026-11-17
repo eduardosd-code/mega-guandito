@@ -1,0 +1,278 @@
+{
+	"damage_events": [
+		{
+			"base": 12,
+			"damage": 12,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 66.933
+		},
+		{
+			"base": 8,
+			"damage": 8,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 67.267
+		},
+		{
+			"base": 12,
+			"damage": 12,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 88.75
+		},
+		{
+			"base": 8,
+			"damage": 8,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 91.067
+		}
+	],
+	"evasion": {
+		"dodges": 0,
+		"hits_taken": 4,
+		"perfect_evades": 0,
+		"perfect_ratio": 0.0,
+		"total_damage_taken": 40,
+		"x2_exposed_hits": 0
+	},
+	"heavy": {
+		"completed": 0,
+		"interrupt_progress_avg": 0.0,
+		"interrupted": 0,
+		"punish_ratio": 0.0,
+		"started": 0
+	},
+	"input_failures": {
+		"attack_buffer_expired": 0,
+		"dash_rejected_air": 0,
+		"dash_rejected_cooldown": 0,
+		"dodge_rejected_air": 0,
+		"dodge_rejected_busy": 0,
+		"dodge_rejected_cooldown": 0,
+		"dodge_rejected_locked": 0,
+		"jump_buffer_expired": 0,
+		"light_ignored_air_spent": 2,
+		"light_ignored_dodging": 0,
+		"light_ignored_other": 7,
+		"light_ignored_recovery": 7
+	},
+	"meta": {
+		"elapsed_seconds": 94.0,
+		"engine": "4.7.2-stable (official)",
+		"final": true,
+		"scene": "sector07.tscn",
+		"session_id": "20260826202721"
+	},
+	"movement": {
+		"cancel_ratio": 0.0,
+		"dash_light_distance_avg_px": 0.0,
+		"dash_light_distance_max_px": 0.0,
+		"dash_light_duration_avg_s": 0.0,
+		"dash_to_light_cancels": 0,
+		"dashes": 0
+	},
+	"timeline": [
+		{
+			"event": "module_power_core..._online",
+			"t": 0.783
+		},
+		{
+			"event": "module_motor_systems..._online",
+			"t": 1.6
+		},
+		{
+			"event": "module_memory..._error",
+			"t": 2.4
+		},
+		{
+			"event": "module_control_restored",
+			"t": 3.217
+		},
+		{
+			"event": "attack_light_1",
+			"t": 53.733
+		},
+		{
+			"event": "attack_air",
+			"t": 56.083
+		},
+		{
+			"event": "attack_air",
+			"t": 57.083
+		},
+		{
+			"event": "attack_air",
+			"t": 57.967
+		},
+		{
+			"event": "level_up_1",
+			"t": 58.017
+		},
+		{
+			"event": "attack_air",
+			"t": 58.967
+		},
+		{
+			"event": "level_up_1",
+			"t": 59.017
+		},
+		{
+			"event": "attack_air",
+			"t": 59.767
+		},
+		{
+			"event": "module_firma_hostil_//_j:_martillo_de_pulso",
+			"t": 62.05
+		},
+		{
+			"event": "attack_air",
+			"t": 62.083
+		},
+		{
+			"event": "module_arena_//_first_contact",
+			"t": 62.1
+		},
+		{
+			"event": "attack_light_1",
+			"t": 62.55
+		},
+		{
+			"event": "attack_light_2",
+			"t": 62.783
+		},
+		{
+			"event": "attack_light_3",
+			"t": 63.033
+		},
+		{
+			"event": "level_up_1",
+			"t": 63.117
+		},
+		{
+			"event": "attack_light_1",
+			"t": 65.317
+		},
+		{
+			"event": "attack_light_2",
+			"t": 65.567
+		},
+		{
+			"event": "attack_light_3",
+			"t": 65.817
+		},
+		{
+			"event": "attack_light_1",
+			"t": 66.7
+		},
+		{
+			"event": "attack_light_2",
+			"t": 66.917
+		},
+		{
+			"event": "damage_12",
+			"t": 66.933
+		},
+		{
+			"event": "damage_8",
+			"t": 67.267
+		},
+		{
+			"event": "attack_light_1",
+			"t": 67.533
+		},
+		{
+			"event": "attack_light_2",
+			"t": 67.75
+		},
+		{
+			"event": "level_up_1",
+			"t": 67.817
+		},
+		{
+			"event": "attack_light_3",
+			"t": 68.017
+		},
+		{
+			"event": "attack_light_1",
+			"t": 68.567
+		},
+		{
+			"event": "attack_light_2",
+			"t": 68.85
+		},
+		{
+			"event": "level_up_1",
+			"t": 68.9
+		},
+		{
+			"event": "attack_light_3",
+			"t": 69.1
+		},
+		{
+			"event": "attack_light_1",
+			"t": 69.5
+		},
+		{
+			"event": "module_checkpoint_//_cp_contact",
+			"t": 82.533
+		},
+		{
+			"event": "attack_light_1",
+			"t": 82.733
+		},
+		{
+			"event": "module_sala_de_bombeo_//_l:_dash_//_dash_+_j:_cancel",
+			"t": 83.917
+		},
+		{
+			"event": "module_elevador_de_bombeo",
+			"t": 84.05
+		},
+		{
+			"event": "damage_12",
+			"t": 88.75
+		},
+		{
+			"event": "attack_light_1",
+			"t": 90.2
+		},
+		{
+			"event": "attack_light_2",
+			"t": 90.45
+		},
+		{
+			"event": "attack_light_3",
+			"t": 90.7
+		},
+		{
+			"event": "damage_8",
+			"t": 91.067
+		},
+		{
+			"event": "attack_light_1",
+			"t": 91.433
+		},
+		{
+			"event": "attack_light_2",
+			"t": 91.667
+		},
+		{
+			"event": "attack_light_3",
+			"t": 91.917
+		},
+		{
+			"event": "level_up_2",
+			"t": 92.0
+		},
+		{
+			"event": "level_up_2",
+			"t": 92.0
+		},
+		{
+			"event": "attack_light_1",
+			"t": 92.333
+		}
+	]
+}

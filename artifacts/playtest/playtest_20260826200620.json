@@ -1,0 +1,225 @@
+{
+	"damage_events": [],
+	"evasion": {
+		"dodges": 0,
+		"hits_taken": 0,
+		"perfect_evades": 0,
+		"perfect_ratio": 0.0,
+		"total_damage_taken": 0,
+		"x2_exposed_hits": 0
+	},
+	"heavy": {
+		"completed": 0,
+		"interrupt_progress_avg": 0.0,
+		"interrupted": 0,
+		"punish_ratio": 0.0,
+		"started": 0
+	},
+	"input_failures": {
+		"attack_buffer_expired": 0,
+		"dash_rejected_air": 0,
+		"dash_rejected_cooldown": 0,
+		"dodge_rejected_air": 0,
+		"dodge_rejected_busy": 0,
+		"dodge_rejected_cooldown": 0,
+		"dodge_rejected_locked": 0,
+		"jump_buffer_expired": 0,
+		"light_ignored_air_spent": 0,
+		"light_ignored_dodging": 0,
+		"light_ignored_other": 3,
+		"light_ignored_recovery": 9
+	},
+	"meta": {
+		"elapsed_seconds": 70.6,
+		"engine": "4.7.2-stable (official)",
+		"final": true,
+		"scene": "sector07.tscn",
+		"session_id": "20260826200620"
+	},
+	"movement": {
+		"cancel_ratio": 0.0,
+		"dash_light_distance_avg_px": 0.0,
+		"dash_light_distance_max_px": 0.0,
+		"dash_light_duration_avg_s": 0.0,
+		"dash_to_light_cancels": 0,
+		"dashes": 0
+	},
+	"timeline": [
+		{
+			"event": "module_power_core..._online",
+			"t": 0.8
+		},
+		{
+			"event": "module_motor_systems..._online",
+			"t": 1.6
+		},
+		{
+			"event": "module_memory..._error",
+			"t": 2.4
+		},
+		{
+			"event": "module_control_restored",
+			"t": 3.2
+		},
+		{
+			"event": "attack_light_1",
+			"t": 29.567
+		},
+		{
+			"event": "attack_light_2",
+			"t": 30.1
+		},
+		{
+			"event": "attack_air",
+			"t": 32.2
+		},
+		{
+			"event": "attack_light_1",
+			"t": 32.9
+		},
+		{
+			"event": "attack_light_2",
+			"t": 33.183
+		},
+		{
+			"event": "level_up_1",
+			"t": 33.233
+		},
+		{
+			"event": "level_up_1",
+			"t": 33.233
+		},
+		{
+			"event": "attack_light_3",
+			"t": 33.433
+		},
+		{
+			"event": "attack_air",
+			"t": 35.6
+		},
+		{
+			"event": "module_firma_hostil_//_j:_martillo_de_pulso",
+			"t": 35.783
+		},
+		{
+			"event": "module_arena_//_first_contact",
+			"t": 35.817
+		},
+		{
+			"event": "attack_light_1",
+			"t": 36.033
+		},
+		{
+			"event": "attack_light_2",
+			"t": 36.267
+		},
+		{
+			"event": "attack_light_3",
+			"t": 36.517
+		},
+		{
+			"event": "level_up_1",
+			"t": 36.6
+		},
+		{
+			"event": "attack_light_1",
+			"t": 37.117
+		},
+		{
+			"event": "attack_light_2",
+			"t": 37.333
+		},
+		{
+			"event": "attack_air",
+			"t": 43.567
+		},
+		{
+			"event": "attack_light_1",
+			"t": 44.05
+		},
+		{
+			"event": "attack_light_2",
+			"t": 44.267
+		},
+		{
+			"event": "attack_light_3",
+			"t": 44.533
+		},
+		{
+			"event": "attack_light_1",
+			"t": 45.067
+		},
+		{
+			"event": "level_up_1",
+			"t": 45.1
+		},
+		{
+			"event": "attack_air",
+			"t": 45.367
+		},
+		{
+			"event": "attack_light_1",
+			"t": 45.833
+		},
+		{
+			"event": "attack_light_2",
+			"t": 46.05
+		},
+		{
+			"event": "attack_light_3",
+			"t": 46.317
+		},
+		{
+			"event": "level_up_1",
+			"t": 46.4
+		},
+		{
+			"event": "module_checkpoint_//_cp_contact",
+			"t": 48.633
+		},
+		{
+			"event": "module_sala_de_bombeo_//_l:_dash_//_dash_+_j:_cancel",
+			"t": 50.017
+		},
+		{
+			"event": "module_elevador_de_bombeo",
+			"t": 50.167
+		},
+		{
+			"event": "attack_air",
+			"t": 54.483
+		},
+		{
+			"event": "attack_air",
+			"t": 55.717
+		},
+		{
+			"event": "attack_light_1",
+			"t": 56.25
+		},
+		{
+			"event": "attack_light_2",
+			"t": 56.467
+		},
+		{
+			"event": "attack_light_3",
+			"t": 56.733
+		},
+		{
+			"event": "level_up_2",
+			"t": 56.817
+		},
+		{
+			"event": "level_up_2",
+			"t": 56.817
+		},
+		{
+			"event": "attack_light_1",
+			"t": 57.3
+		},
+		{
+			"event": "attack_air",
+			"t": 58.017
+		}
+	]
+}

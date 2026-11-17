@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource path="res://scripts/effects/scrapper_sprite_fx.gd" type="Script" id="1"]
+[node name="ScrapperChargeTrailFX" type="Node2D"]
+script = ExtResource("1")
+fx_name = "charge_trail_fx"
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -32)

@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="EncounterData" load_steps=2 format=3]
+[ext_resource path="res://resources/encounters/encounter_data.gd" type="Script" id="1"]
+[resource]
+script = ExtResource("1")
+encounter_id = &"combat_lab_mixed"
+enemy_roles = PackedInt32Array(0, 0, 1, 2)
+spawn_offsets = PackedVector2Array(-210, 0, -105, 0, 105, 0, 230, -45)

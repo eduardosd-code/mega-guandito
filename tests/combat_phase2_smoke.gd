@@ -3,6 +3,7 @@ extends SceneTree
 const ARENA := preload("res://scenes/levels/test_arena.tscn")
 const EVASION := preload("res://resources/modules/overdrive_evasion_mk1.tres")
 const ENEMY_ATTACK := preload("res://resources/data/training_bot_attack.tres")
+const LIGHT_1 := preload("res://resources/data/attack_light_1.tres")
 const HEAVY := preload("res://resources/data/attack_heavy.tres")
 
 var failures: Array[String] = []
@@ -33,6 +34,8 @@ func _run() -> void:
 	var player := get_first_node_in_group("player") as GuanditoPlayer
 	var bot := get_first_node_in_group("enemies") as TrainingBot
 	_check(player != null and bot != null, "arena instantiates player and TrainingBot")
+	_check(LIGHT_1.hitbox_offset.x + LIGHT_1.hitbox_size.x * 0.5 >= 47.0, "Light hammer reach matches the visual swing")
+	_check(HEAVY.hitbox_offset.x + HEAVY.hitbox_size.x * 0.5 >= 61.0, "Heavy hammer reach extends beyond the light combo")
 	if not player or not bot:
 		quit(1)
 		return
@@ -64,6 +67,9 @@ func _run() -> void:
 	_check(player.dodge_phase == &"normal", "dodge input is ignored without module")
 	_check(player.modules.equip(EVASION), "Overdrive Evasion equips through reactor rules")
 	_check(player.modules.has_effect(&"unlock_dodge"), "module unlocks dodge effect")
+	var dash_distance := player.dash_speed * player.dash_duration
+	var dodge_distance := player._dodge_travel_speed() * (player.dodge_startup + player.dodge_iframes)
+	_check(is_equal_approx(dodge_distance, dash_distance), "dodge travel length matches ground dash")
 	player.dodge_cooldown_left = 0.0
 	await _tap(&"dodge")
 	await _frames(1)

@@ -1,0 +1,157 @@
+{
+  "pack": "GUANDITO Sector 07 Environment Pack",
+  "version": "1.0",
+  "engine": "Godot 4.x",
+  "source_master": "source/sector07_environment_master.png",
+  "source_master_size": [
+    1536,
+    1024
+  ],
+  "pixel_art_import": {
+    "filter": false,
+    "mipmaps": false,
+    "nearest_neighbor": true
+  },
+  "base_tile_size": [
+    32,
+    32
+  ],
+  "characters_included": false,
+  "character_policy": "Never replace or reinterpret approved Guandito/enemy assets.",
+  "assets": [
+    {
+      "path": "tiles/structure_32_grid.png",
+      "type": "tileset_source",
+      "size": [
+        512,
+        352
+      ],
+      "tile_size": [
+        32,
+        32
+      ],
+      "layout": "16 columns x 11 rows",
+      "alpha_note": "Regional source was generated as a composed sheet; inspect alpha before final production use."
+    },
+    {
+      "path": "tiles/structure_source_atlas.png",
+      "type": "regional_atlas",
+      "size": [
+        522,
+        358
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    },
+    {
+      "path": "pipes/pipes_cables_source_atlas.png",
+      "type": "regional_atlas",
+      "size": [
+        538,
+        358
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    },
+    {
+      "path": "machinery/machinery_source_atlas.png",
+      "type": "regional_atlas",
+      "size": [
+        492,
+        369
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    },
+    {
+      "path": "doors/doors_source_atlas.png",
+      "type": "regional_atlas",
+      "size": [
+        599,
+        195
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    },
+    {
+      "path": "interactive/interactives_source_atlas.png",
+      "type": "regional_atlas",
+      "size": [
+        491,
+        195
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    },
+    {
+      "path": "animated/animated_source_atlas.png",
+      "type": "regional_atlas",
+      "size": [
+        1536,
+        133
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    },
+    {
+      "path": "backgrounds/bg_far.png",
+      "type": "regional_atlas",
+      "size": [
+        522,
+        72
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    },
+    {
+      "path": "backgrounds/bg_mid.png",
+      "type": "regional_atlas",
+      "size": [
+        522,
+        71
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    },
+    {
+      "path": "backgrounds/bg_near.png",
+      "type": "regional_atlas",
+      "size": [
+        492,
+        143
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    },
+    {
+      "path": "foreground/foreground_industrial.png",
+      "type": "regional_atlas",
+      "size": [
+        522,
+        143
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    },
+    {
+      "path": "decals/sector07_decals_source.png",
+      "type": "regional_atlas",
+      "size": [
+        691,
+        205
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    },
+    {
+      "path": "overlays/light_overlays_source.png",
+      "type": "regional_atlas",
+      "size": [
+        538,
+        205
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    },
+    {
+      "path": "fx/environment_fx_source.png",
+      "type": "regional_atlas",
+      "size": [
+        323,
+        205
+      ],
+      "usage": "Use AtlasTexture regions or extract only visually clean subregions; do not blind-slice."
+    }
+  ],
+  "background_policy": "bg_far/bg_mid/bg_near are opaque parallax art by design.",
+  "foreground_policy": "foreground_industrial is a regional source; use only clean extracted subregions.",
+  "technical_note": "This pack preserves the generated art at native resolution and provides deterministic regional files. Because generative image output does not guarantee mathematically exact transparent item boundaries, Codex must not invent alpha or collision. Assets that still contain sheet background should be treated as source art and flagged for clean-export replacement rather than degraded."
+}

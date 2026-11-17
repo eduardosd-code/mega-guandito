@@ -1,0 +1,647 @@
+{
+	"damage_events": [
+		{
+			"base": 12,
+			"damage": 12,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 27.983
+		},
+		{
+			"base": 12,
+			"damage": 12,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 31.733
+		},
+		{
+			"base": 8,
+			"damage": 8,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 53.15
+		},
+		{
+			"base": 8,
+			"damage": 8,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 64.183
+		},
+		{
+			"base": 22,
+			"damage": 22,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 70.95
+		},
+		{
+			"base": 8,
+			"damage": 8,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 74.067
+		},
+		{
+			"base": 22,
+			"damage": 18,
+			"exposed": false,
+			"multiplier": 0.82,
+			"t": 74.1
+		},
+		{
+			"base": 22,
+			"damage": 22,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 79.583
+		},
+		{
+			"base": 10,
+			"damage": 10,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 80.783
+		},
+		{
+			"base": 12,
+			"damage": 12,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 81.15
+		},
+		{
+			"base": 18,
+			"damage": 18,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 81.35
+		},
+		{
+			"base": 10,
+			"damage": 10,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 83.1
+		},
+		{
+			"base": 10,
+			"damage": 10,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 83.6
+		},
+		{
+			"base": 22,
+			"damage": 22,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 83.917
+		},
+		{
+			"base": 10,
+			"damage": 4,
+			"exposed": false,
+			"multiplier": 0.4,
+			"t": 85.317
+		}
+	],
+	"evasion": {
+		"dodges": 0,
+		"hits_taken": 15,
+		"perfect_evades": 3,
+		"perfect_ratio": 0.0,
+		"total_damage_taken": 196,
+		"x2_exposed_hits": 0
+	},
+	"heavy": {
+		"completed": 9,
+		"interrupt_progress_avg": 0.555555555555524,
+		"interrupted": 3,
+		"punish_ratio": 0.25,
+		"started": 12
+	},
+	"input_failures": {
+		"attack_buffer_expired": 0,
+		"dash_rejected_air": 1,
+		"dash_rejected_cooldown": 0,
+		"dodge_rejected_air": 0,
+		"dodge_rejected_busy": 0,
+		"dodge_rejected_cooldown": 0,
+		"dodge_rejected_locked": 0,
+		"jump_buffer_expired": 1,
+		"light_ignored_air_spent": 5,
+		"light_ignored_dodging": 0,
+		"light_ignored_other": 11,
+		"light_ignored_recovery": 11
+	},
+	"meta": {
+		"elapsed_seconds": 88.03,
+		"engine": "4.7.2-stable (official)",
+		"final": true,
+		"scene": "sector07.tscn",
+		"session_id": "20260824142421"
+	},
+	"movement": {
+		"cancel_ratio": 0.0,
+		"dash_light_distance_avg_px": 0.0,
+		"dash_light_distance_max_px": 0.0,
+		"dash_light_duration_avg_s": 0.0,
+		"dash_to_light_cancels": 0,
+		"dashes": 13
+	},
+	"timeline": [
+		{
+			"event": "module_power_core..._online",
+			"t": 0.783
+		},
+		{
+			"event": "module_motor_systems..._online",
+			"t": 1.583
+		},
+		{
+			"event": "module_memory..._error",
+			"t": 2.383
+		},
+		{
+			"event": "module_control_restored",
+			"t": 3.2
+		},
+		{
+			"event": "attack_air",
+			"t": 21.417
+		},
+		{
+			"event": "attack_air",
+			"t": 23.033
+		},
+		{
+			"event": "attack_air",
+			"t": 24.583
+		},
+		{
+			"event": "attack_light_1",
+			"t": 25.517
+		},
+		{
+			"event": "attack_light_2",
+			"t": 25.733
+		},
+		{
+			"event": "level_up_1",
+			"t": 25.8
+		},
+		{
+			"event": "attack_light_3",
+			"t": 26.0
+		},
+		{
+			"event": "attack_air",
+			"t": 27.25
+		},
+		{
+			"event": "module_firma_hostil_//_j:_martillo_de_pulso",
+			"t": 27.517
+		},
+		{
+			"event": "module_arena_//_first_contact",
+			"t": 27.55
+		},
+		{
+			"event": "attack_light_1",
+			"t": 27.817
+		},
+		{
+			"event": "damage_12",
+			"t": 27.983
+		},
+		{
+			"event": "attack_light_1",
+			"t": 28.35
+		},
+		{
+			"event": "attack_heavy",
+			"t": 28.667
+		},
+		{
+			"event": "level_up_1",
+			"t": 28.85
+		},
+		{
+			"event": "heavy_completed",
+			"t": 29.25
+		},
+		{
+			"event": "attack_heavy",
+			"t": 30.083
+		},
+		{
+			"event": "heavy_completed",
+			"t": 30.667
+		},
+		{
+			"event": "attack_air",
+			"t": 31.133
+		},
+		{
+			"event": "damage_12",
+			"t": 31.733
+		},
+		{
+			"event": "attack_light_1",
+			"t": 32.417
+		},
+		{
+			"event": "attack_light_2",
+			"t": 32.683
+		},
+		{
+			"event": "attack_light_3",
+			"t": 32.933
+		},
+		{
+			"event": "dash",
+			"t": 33.35
+		},
+		{
+			"event": "dash",
+			"t": 34.083
+		},
+		{
+			"event": "dash",
+			"t": 34.667
+		},
+		{
+			"event": "dash",
+			"t": 35.2
+		},
+		{
+			"event": "attack_heavy",
+			"t": 35.483
+		},
+		{
+			"event": "level_up_1",
+			"t": 35.717
+		},
+		{
+			"event": "heavy_completed",
+			"t": 36.067
+		},
+		{
+			"event": "dash",
+			"t": 36.45
+		},
+		{
+			"event": "dash",
+			"t": 37.0
+		},
+		{
+			"event": "dash",
+			"t": 37.483
+		},
+		{
+			"event": "attack_air",
+			"t": 38.117
+		},
+		{
+			"event": "attack_air",
+			"t": 39.4
+		},
+		{
+			"event": "attack_air",
+			"t": 40.35
+		},
+		{
+			"event": "attack_air",
+			"t": 41.117
+		},
+		{
+			"event": "level_up_1",
+			"t": 41.167
+		},
+		{
+			"event": "attack_light_1",
+			"t": 42.25
+		},
+		{
+			"event": "attack_light_2",
+			"t": 42.467
+		},
+		{
+			"event": "attack_light_3",
+			"t": 42.733
+		},
+		{
+			"event": "attack_light_1",
+			"t": 43.583
+		},
+		{
+			"event": "level_up_1",
+			"t": 43.617
+		},
+		{
+			"event": "attack_light_2",
+			"t": 43.833
+		},
+		{
+			"event": "module_checkpoint_//_cp_contact",
+			"t": 46.217
+		},
+		{
+			"event": "module_sala_de_bombeo_//_l:_dash_//_dash_+_j:_cancel",
+			"t": 47.6
+		},
+		{
+			"event": "module_elevador_de_bombeo",
+			"t": 47.733
+		},
+		{
+			"event": "dash",
+			"t": 50.9
+		},
+		{
+			"event": "dash",
+			"t": 51.45
+		},
+		{
+			"event": "dash",
+			"t": 51.9
+		},
+		{
+			"event": "dash",
+			"t": 52.35
+		},
+		{
+			"event": "attack_air",
+			"t": 52.533
+		},
+		{
+			"event": "attack_light_1",
+			"t": 53.133
+		},
+		{
+			"event": "damage_8",
+			"t": 53.15
+		},
+		{
+			"event": "attack_light_1",
+			"t": 53.567
+		},
+		{
+			"event": "attack_light_2",
+			"t": 53.783
+		},
+		{
+			"event": "attack_light_3",
+			"t": 54.05
+		},
+		{
+			"event": "level_up_2",
+			"t": 54.133
+		},
+		{
+			"event": "level_up_2",
+			"t": 54.133
+		},
+		{
+			"event": "dash",
+			"t": 55.833
+		},
+		{
+			"event": "dash",
+			"t": 56.367
+		},
+		{
+			"event": "attack_air",
+			"t": 58.6
+		},
+		{
+			"event": "module_conductos:_rutas_secundarias_detectadas",
+			"t": 58.7
+		},
+		{
+			"event": "level_up_2",
+			"t": 61.983
+		},
+		{
+			"event": "module_secreto:_nucleo_de_datos_+35_xp",
+			"t": 61.983
+		},
+		{
+			"event": "attack_air",
+			"t": 63.267
+		},
+		{
+			"event": "attack_light_1",
+			"t": 63.667
+		},
+		{
+			"event": "attack_light_2",
+			"t": 63.883
+		},
+		{
+			"event": "attack_light_3",
+			"t": 64.15
+		},
+		{
+			"event": "damage_8",
+			"t": 64.183
+		},
+		{
+			"event": "attack_light_1",
+			"t": 64.517
+		},
+		{
+			"event": "attack_light_2",
+			"t": 64.733
+		},
+		{
+			"event": "level_up_2",
+			"t": 64.8
+		},
+		{
+			"event": "attack_light_3",
+			"t": 65.0
+		},
+		{
+			"event": "module_checkpoint_//_cp_service",
+			"t": 67.167
+		},
+		{
+			"event": "module_montacargas_de_ensamblaje",
+			"t": 70.55
+		},
+		{
+			"event": "attack_light_1",
+			"t": 70.683
+		},
+		{
+			"event": "attack_light_2",
+			"t": 70.9
+		},
+		{
+			"event": "damage_22",
+			"t": 70.95
+		},
+		{
+			"event": "module_ensamblaje_//_unidades_pesadas:_use_heavy",
+			"t": 71.183
+		},
+		{
+			"event": "attack_heavy",
+			"t": 71.517
+		},
+		{
+			"event": "heavy_completed",
+			"t": 72.1
+		},
+		{
+			"event": "attack_heavy",
+			"t": 72.183
+		},
+		{
+			"event": "heavy_completed",
+			"t": 72.767
+		},
+		{
+			"event": "attack_heavy",
+			"t": 72.817
+		},
+		{
+			"event": "heavy_completed",
+			"t": 73.4
+		},
+		{
+			"event": "jump_buffer_expired",
+			"t": 73.417
+		},
+		{
+			"event": "attack_light_1",
+			"t": 73.55
+		},
+		{
+			"event": "attack_heavy",
+			"t": 73.883
+		},
+		{
+			"event": "damage_8",
+			"t": 74.067
+		},
+		{
+			"event": "heavy_interrupted",
+			"t": 74.067
+		},
+		{
+			"event": "death",
+			"t": 74.1
+		},
+		{
+			"event": "damage_18",
+			"t": 74.1
+		},
+		{
+			"event": "perfect_evade",
+			"t": 74.983
+		},
+		{
+			"event": "level_up_2",
+			"t": 75.1
+		},
+		{
+			"event": "module_montacargas_de_ensamblaje",
+			"t": 79.283
+		},
+		{
+			"event": "damage_22",
+			"t": 79.583
+		},
+		{
+			"event": "attack_heavy",
+			"t": 80.1
+		},
+		{
+			"event": "heavy_completed",
+			"t": 80.683
+		},
+		{
+			"event": "attack_heavy",
+			"t": 80.7
+		},
+		{
+			"event": "damage_10",
+			"t": 80.783
+		},
+		{
+			"event": "heavy_interrupted",
+			"t": 80.783
+		},
+		{
+			"event": "attack_heavy",
+			"t": 81.1
+		},
+		{
+			"event": "damage_12",
+			"t": 81.15
+		},
+		{
+			"event": "heavy_interrupted",
+			"t": 81.15
+		},
+		{
+			"event": "damage_18",
+			"t": 81.35
+		},
+		{
+			"event": "attack_heavy",
+			"t": 81.75
+		},
+		{
+			"event": "heavy_completed",
+			"t": 82.333
+		},
+		{
+			"event": "attack_heavy",
+			"t": 82.383
+		},
+		{
+			"event": "heavy_completed",
+			"t": 82.967
+		},
+		{
+			"event": "damage_10",
+			"t": 83.1
+		},
+		{
+			"event": "damage_10",
+			"t": 83.6
+		},
+		{
+			"event": "damage_22",
+			"t": 83.917
+		},
+		{
+			"event": "attack_air",
+			"t": 85.017
+		},
+		{
+			"event": "death",
+			"t": 85.317
+		},
+		{
+			"event": "damage_4",
+			"t": 85.317
+		},
+		{
+			"event": "perfect_evade",
+			"t": 85.4
+		},
+		{
+			"event": "perfect_evade",
+			"t": 86.2
+		},
+		{
+			"event": "level_up_2",
+			"t": 86.317
+		}
+	]
+}

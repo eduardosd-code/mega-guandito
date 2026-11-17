@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EnemyBalanceData" load_steps=2 format=3]
+[ext_resource path="res://resources/enemies/enemy_balance_data.gd" type="Script" id="1"]
+[resource]
+script = ExtResource("1")
+enemy_id = &"obs07_sentry"
+max_health = 35
+xp_reward = 20
+move_speed = 72.0
+detection_range = 390.0
+preferred_range = 185.0
+attack_cooldown = 1.2
+position_time = 0.25
+attack_1_damage = 10
+attack_2_damage = 10
+attack_1_startup = 0.32
+attack_2_startup = 0.5
+attack_1_recovery = 0.3
+attack_2_recovery = 0.55
+enable_alternate_attack = false
+projectile_speed = 145.0

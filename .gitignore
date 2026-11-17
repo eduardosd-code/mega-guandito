@@ -5,12 +5,12 @@ bin/
 .autoloads/
 .godot/
 
-# Build artifacts
-*.import
-*.scn.import
-*.tres.import
-*.tscn.import
-*.gd.import
+# Build artifacts (Godot 4: *.import files ARE committed; they hold per-asset import settings)
+build/
+export_templates/
+
+# Session attachments
+.codex-remote-attachments/
 
 # Editor
 .vscode/

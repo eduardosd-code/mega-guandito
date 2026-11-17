@@ -2,9 +2,9 @@ class_name Sector07EnemySpriteLibrary
 extends RefCounted
 
 const DEFINITIONS := {
-	&"scrapper": {"size": Vector2i(64, 64), "animations": {&"idle": 6, &"run": 8, &"attack_1": 4, &"attack_2": 5, &"hit": 3, &"death": 6}},
-	&"bulwark": {"size": Vector2i(96, 96), "animations": {&"idle": 6, &"walk": 6, &"attack_hammer_fist": 5, &"attack_charge": 6, &"attack_backhand": 4, &"hit": 3, &"death": 7}},
-	&"sentry": {"size": Vector2i(64, 64), "animations": {&"hover_idle": 6, &"move": 4, &"pulse_shot": 5, &"triple_pulse": 7, &"hit": 3, &"death": 6}},
+	&"scrapper": {"size": Vector2i(64, 64), "sizes": {&"attack_1": Vector2i(96, 64), &"attack_2": Vector2i(96, 64)}, "animations": {&"idle": 6, &"run": 8, &"attack_1": 4, &"attack_2": 5, &"hit": 3, &"death": 6}},
+	&"bulwark": {"size": Vector2i(96, 96), "sizes": {&"attack_hammer_fist": Vector2i(128, 96), &"attack_charge": Vector2i(128, 96), &"attack_backhand": Vector2i(128, 96), &"death": Vector2i(128, 96)}, "animations": {&"idle": 6, &"walk": 6, &"attack_hammer_fist": 5, &"attack_charge": 6, &"attack_backhand": 4, &"hit": 3, &"death": 7}},
+	&"sentry": {"size": Vector2i(64, 64), "sizes": {&"death": Vector2i(96, 64)}, "animations": {&"hover_idle": 6, &"move": 4, &"pulse_shot": 5, &"triple_pulse": 7, &"hit": 3, &"death": 6}},
 	&"hound": {"size": Vector2i(160, 96), "animations": {&"idle": 6, &"walk_prowl": 6, &"charge": 5, &"pounce": 6, &"claw_combo": 6, &"energy_burst": 8, &"hit": 3, &"death": 8}}
 }
 
@@ -14,9 +14,9 @@ static func build(enemy: StringName) -> SpriteFrames:
 	var library := SpriteFrames.new()
 	library.remove_animation(&"default")
 	var definition: Dictionary = DEFINITIONS[enemy]
-	var frame_size: Vector2i = definition["size"]
 	var animations: Dictionary = definition["animations"]
 	for animation_name: StringName in animations:
+		var frame_size: Vector2i = definition.get("sizes", {}).get(animation_name, definition["size"])
 		library.add_animation(animation_name)
 		library.set_animation_loop(animation_name, animation_name in LOOPING)
 		library.set_animation_speed(animation_name, 10.0)

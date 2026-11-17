@@ -17,6 +17,15 @@ var debug_hud_visible := true
 func _ready() -> void:
 	add_to_group("game_manager")
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	if OS.is_debug_build() and _playtest_recording_requested():
+		var recorder := PlaytestRecorder.new()
+		recorder.name = "PlaytestRecorder"
+		add_child.call_deferred(recorder)
+
+func _playtest_recording_requested() -> bool:
+	if OS.get_environment("GUANDITO_PLAYTEST") == "1":
+		return true
+	return DisplayServer.get_name() != "headless"
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause"):

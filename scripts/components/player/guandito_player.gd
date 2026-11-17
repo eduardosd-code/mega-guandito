@@ -122,7 +122,7 @@ func _physics_process(delta: float) -> void:
 		return
 	_handle_actions()
 	if dodge_phase in [&"startup", &"evade"]:
-		velocity = Vector2(facing * dodge_speed, 0.0)
+		velocity = Vector2(facing * _dodge_travel_speed(), 0.0)
 	elif dash_left > 0.0:
 		state_machine.change(&"dash")
 		velocity = Vector2(facing * dash_speed, 0.0)
@@ -323,6 +323,10 @@ func _try_start_dodge() -> void:
 	dodge_cooldown_left = dodge_cooldown
 	state_machine.change(&"dodge_startup")
 	visual.set_action(&"dodge_start", facing)
+
+func _dodge_travel_speed() -> float:
+	var dodge_movement_time := maxf(dodge_startup + dodge_iframes, 0.001)
+	return dash_speed * dash_duration / dodge_movement_time
 
 func _tick_dodge_phase(delta: float) -> void:
 	if dodge_phase == &"normal":

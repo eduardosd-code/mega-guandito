@@ -1,0 +1,340 @@
+{
+	"damage_events": [
+		{
+			"base": 10,
+			"damage": 10,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 13.35
+		},
+		{
+			"base": 10,
+			"damage": 10,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 44.333
+		},
+		{
+			"base": 22,
+			"damage": 22,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 46.783
+		},
+		{
+			"base": 22,
+			"damage": 22,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 47.883
+		},
+		{
+			"base": 12,
+			"damage": 12,
+			"exposed": false,
+			"multiplier": 1.0,
+			"t": 48.05
+		},
+		{
+			"base": 12,
+			"damage": 2,
+			"exposed": false,
+			"multiplier": 0.17,
+			"t": 49.133
+		}
+	],
+	"evasion": {
+		"dodges": 0,
+		"hits_taken": 6,
+		"perfect_evades": 1,
+		"perfect_ratio": 0.0,
+		"total_damage_taken": 78,
+		"x2_exposed_hits": 0
+	},
+	"heavy": {
+		"completed": 0,
+		"interrupt_progress_avg": 0.0,
+		"interrupted": 0,
+		"punish_ratio": 0.0,
+		"started": 0
+	},
+	"input_failures": {
+		"attack_buffer_expired": 0,
+		"dash_rejected_air": 0,
+		"dash_rejected_cooldown": 0,
+		"dodge_rejected_air": 0,
+		"dodge_rejected_busy": 0,
+		"dodge_rejected_cooldown": 0,
+		"dodge_rejected_locked": 0,
+		"jump_buffer_expired": 1,
+		"light_ignored_air_spent": 1,
+		"light_ignored_dodging": 0,
+		"light_ignored_other": 1,
+		"light_ignored_recovery": 9
+	},
+	"meta": {
+		"elapsed_seconds": 53.45,
+		"engine": "4.7.2-stable (official)",
+		"final": true,
+		"scene": "sector07.tscn",
+		"session_id": "20260826204008"
+	},
+	"movement": {
+		"cancel_ratio": 0.0,
+		"dash_light_distance_avg_px": 0.0,
+		"dash_light_distance_max_px": 0.0,
+		"dash_light_duration_avg_s": 0.0,
+		"dash_to_light_cancels": 0,
+		"dashes": 0
+	},
+	"timeline": [
+		{
+			"event": "module_power_core..._online",
+			"t": 0.783
+		},
+		{
+			"event": "module_motor_systems..._online",
+			"t": 1.583
+		},
+		{
+			"event": "module_memory..._error",
+			"t": 2.383
+		},
+		{
+			"event": "attack_air",
+			"t": 4.583
+		},
+		{
+			"event": "attack_air",
+			"t": 5.883
+		},
+		{
+			"event": "attack_light_1",
+			"t": 10.4
+		},
+		{
+			"event": "attack_light_1",
+			"t": 11.317
+		},
+		{
+			"event": "attack_light_2",
+			"t": 11.6
+		},
+		{
+			"event": "attack_light_3",
+			"t": 11.85
+		},
+		{
+			"event": "attack_light_1",
+			"t": 12.25
+		},
+		{
+			"event": "level_up_1",
+			"t": 12.283
+		},
+		{
+			"event": "module_firma_hostil_//_j:_martillo_de_pulso",
+			"t": 12.65
+		},
+		{
+			"event": "module_arena_//_first_contact",
+			"t": 12.7
+		},
+		{
+			"event": "damage_10",
+			"t": 13.35
+		},
+		{
+			"event": "attack_air",
+			"t": 14.767
+		},
+		{
+			"event": "attack_light_1",
+			"t": 15.533
+		},
+		{
+			"event": "attack_light_2",
+			"t": 15.767
+		},
+		{
+			"event": "level_up_1",
+			"t": 15.817
+		},
+		{
+			"event": "attack_light_3",
+			"t": 16.017
+		},
+		{
+			"event": "attack_light_1",
+			"t": 16.517
+		},
+		{
+			"event": "level_up_1",
+			"t": 16.55
+		},
+		{
+			"event": "attack_light_2",
+			"t": 16.8
+		},
+		{
+			"event": "attack_light_3",
+			"t": 17.05
+		},
+		{
+			"event": "attack_light_1",
+			"t": 17.733
+		},
+		{
+			"event": "attack_light_2",
+			"t": 17.967
+		},
+		{
+			"event": "level_up_1",
+			"t": 18.017
+		},
+		{
+			"event": "attack_light_3",
+			"t": 18.217
+		},
+		{
+			"event": "attack_air",
+			"t": 19.067
+		},
+		{
+			"event": "attack_air",
+			"t": 19.833
+		},
+		{
+			"event": "attack_light_1",
+			"t": 20.35
+		},
+		{
+			"event": "level_up_1",
+			"t": 20.383
+		},
+		{
+			"event": "jump_buffer_expired",
+			"t": 20.55
+		},
+		{
+			"event": "attack_light_2",
+			"t": 20.633
+		},
+		{
+			"event": "attack_light_1",
+			"t": 21.217
+		},
+		{
+			"event": "module_checkpoint_//_cp_contact",
+			"t": 21.217
+		},
+		{
+			"event": "module_sala_de_bombeo_//_l:_dash_//_dash_+_j:_cancel",
+			"t": 22.6
+		},
+		{
+			"event": "module_elevador_de_bombeo",
+			"t": 22.733
+		},
+		{
+			"event": "attack_air",
+			"t": 25.9
+		},
+		{
+			"event": "attack_light_1",
+			"t": 26.383
+		},
+		{
+			"event": "attack_light_2",
+			"t": 26.617
+		},
+		{
+			"event": "attack_light_3",
+			"t": 26.883
+		},
+		{
+			"event": "level_up_2",
+			"t": 26.95
+		},
+		{
+			"event": "level_up_2",
+			"t": 26.95
+		},
+		{
+			"event": "attack_light_1",
+			"t": 27.367
+		},
+		{
+			"event": "attack_light_2",
+			"t": 27.6
+		},
+		{
+			"event": "attack_light_1",
+			"t": 29.617
+		},
+		{
+			"event": "attack_light_2",
+			"t": 29.883
+		},
+		{
+			"event": "module_conductos:_rutas_secundarias_detectadas",
+			"t": 33.1
+		},
+		{
+			"event": "attack_light_1",
+			"t": 38.733
+		},
+		{
+			"event": "level_up_2",
+			"t": 40.75
+		},
+		{
+			"event": "module_secreto:_nucleo_de_datos_+35_xp",
+			"t": 40.75
+		},
+		{
+			"event": "module_checkpoint_//_cp_service",
+			"t": 43.35
+		},
+		{
+			"event": "damage_10",
+			"t": 44.333
+		},
+		{
+			"event": "module_montacargas_de_ensamblaje",
+			"t": 46.4
+		},
+		{
+			"event": "module_ensamblaje_//_unidades_pesadas:_use_heavy",
+			"t": 46.6
+		},
+		{
+			"event": "damage_22",
+			"t": 46.783
+		},
+		{
+			"event": "damage_22",
+			"t": 47.883
+		},
+		{
+			"event": "damage_12",
+			"t": 48.05
+		},
+		{
+			"event": "death",
+			"t": 49.133
+		},
+		{
+			"event": "damage_2",
+			"t": 49.133
+		},
+		{
+			"event": "perfect_evade",
+			"t": 49.6
+		},
+		{
+			"event": "level_up_2",
+			"t": 50.15
+		}
+	]
+}
