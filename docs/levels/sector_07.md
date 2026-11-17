@@ -53,3 +53,10 @@ En builds debug: F2 cura, F3 avanza por checkpoints, F4 teletransporta al prebos
 ## Placeholders
 
 Geometría, paredes, tuberías, maquinaria, luces, skyline de KORA, La Aguja, vapor y audio ambiental siguen siendo provisionales generados con primitivas y hooks. Los sprites y FX existentes de Guandito y enemigos sí se reutilizan.
+
+## Pase Zero (2026-11-17)
+
+- **Chimenea (zona 4, x 2400–2502):** pared colgante (2400–2424, y 20–150) y barrera (2476–2502, y 95–205). Solo se supera con wall jumps; el dash aéreo ayuda a salir por arriba.
+- **Pinchos (x 2504–2640, suelo y 205):** 30 de daño y rebote. La ruta segura es la plataforma de servicio de 2500–2630.
+- **Telegraph:** todos los ataques de Scrapper, Bulwark y Sentry parpadean en blanco→rojo durante el startup.
+- **Rango de misión:** al terminar se muestra tiempo, daño, reinicios, enemigos y rango S/A/B/C/D (`scripts/systems/mission_rank.gd`).

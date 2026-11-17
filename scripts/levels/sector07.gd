@@ -25,6 +25,10 @@ var intro_finished := false
 var intro_skipped := false
 var intro_layer: CanvasLayer
 var level_complete := false
+var run_time := 0.0
+var damage_taken := 0
+var deaths := 0
+var kills := 0
 
 func _ready() -> void:
 	_build_geometry()
@@ -32,6 +36,7 @@ func _ready() -> void:
 	_spawn_encounters()
 	_configure_assembly_arena()
 	player.health.died.connect(_on_player_died)
+	player.health.damaged.connect(func(amount: int): damage_taken += amount)
 	var camera := player.get_node("Camera2D") as Camera2D
 	camera.limit_left = 0; camera.limit_right = 5750; camera.limit_top = 0; camera.limit_bottom = 300
 	player.module_status.emit("SECTOR 07 // INSTALACION ABANDONADA")
@@ -39,6 +44,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	elapsed += delta; queue_redraw()
+	if intro_finished and not level_complete: run_time += delta
 	if not boss_started and not boss_defeated and player.global_position.x > 4310:
 		_start_hound_encounter()
 	if not level_complete and boss_defeated and player.global_position.x > 5580:
@@ -57,6 +63,11 @@ func _build_geometry() -> void:
 	for platform in [Rect2(2500,145,130,12),Rect2(2690,105,130,12),Rect2(2880,145,160,12),Rect2(3550,125,120,12),Rect2(3790,105,140,12)]: _add_platform(platform)
 	_add_moving_platform(Vector2(2225,190),Vector2(105,-55),2.6)
 	_add_moving_platform(Vector2(3150,165),Vector2(90,0),2.1)
+	# Zone 4 chimney: a hanging wall and a tall barrier 52 px apart. The only way
+	# over is wall-jumping between them (or wall jump + air dash).
+	_add_block(Vector2(2400,20),Vector2(24,130))
+	_add_block(Vector2(2476,95),Vector2(26,110))
+	var spikes := SpikeStrip.new(); spikes.position = Vector2(2504,205); spikes.width = 136.0; add_child(spikes)
 	for hazard_position in [Vector2(1605,190), Vector2(1875,160), Vector2(2350,175)]:
 		var hazard: Area2D = INDUSTRIAL_HAZARD.new(); hazard.position = hazard_position; add_child(hazard)
 
@@ -64,7 +75,8 @@ func _build_progression() -> void:
 	_message_trigger(Vector2(160,150),"SISTEMAS GND-01 RESTAURADOS // A/D MOVER // SPACE SALTAR")
 	_message_trigger(Vector2(720,150),"FIRMA HOSTIL // J: MARTILLO DE PULSO")
 	_message_trigger(Vector2(1560,120),"SALA DE BOMBEO // L: DASH // DASH + J: CANCEL")
-	_message_trigger(Vector2(2530,90),"CONDUCTOS: RUTAS SECUNDARIAS DETECTADAS")
+	_message_trigger(Vector2(2330,150),"CHIMENEA // EMPUJA CONTRA LA PARED Y SALTA // L EN EL AIRE: DASH")
+	_message_trigger(Vector2(2560,90),"CONDUCTOS: RUTAS SECUNDARIAS // MANTEN J PARA CARGAR")
 	_message_trigger(Vector2(3490,115),"ENSAMBLAJE // UNIDADES PESADAS: USE HEAVY")
 	_message_trigger(Vector2(5090,105),"Q: SOBRECARGA EVASIVA // EVITE EL IMPACTO, NO LA EXPOSICION")
 	_message_trigger(Vector2(5580,100),"SECTOR 07 COMPLETADO // KORA // LA AGUJA")
@@ -128,6 +140,9 @@ func _add_floor(top_left: Vector2, size: Vector2) -> void:
 	var body := StaticBody2D.new(); body.collision_layer = 16; body.collision_mask = 0; body.position = top_left + size * 0.5
 	var collision := CollisionShape2D.new(); var shape := RectangleShape2D.new(); shape.size = size; collision.shape = shape; body.add_child(collision); add_child(body)
 
+func _add_block(top_left: Vector2, size: Vector2) -> void:
+	var block := SolidBlock.new(); block.position = top_left; block.size = size; add_child(block)
+
 func _add_platform(rect: Rect2) -> void:
 	_add_floor(rect.position,rect.size)
 
@@ -167,6 +182,7 @@ func _on_checkpoint(checkpoint: Checkpoint) -> void:
 func _on_player_died() -> void:
 	if respawning: return
 	respawning = true
+	deaths += 1
 	await get_tree().create_timer(1.0, false).timeout
 	_restore_checkpoint_state()
 	player.respawn_at(checkpoint_position)
@@ -180,6 +196,7 @@ func _on_hound_defeated() -> void:
 func _on_regular_enemy_defeated(enemy: SectorEnemy) -> void:
 	var spawn_id: StringName = enemy.get_meta(&"spawn_id", &"")
 	if spawn_id != &"":
+		if not defeated_enemy_ids.has(spawn_id): kills += 1
 		defeated_enemy_ids[spawn_id] = true
 		active_enemies.erase(spawn_id)
 
@@ -243,6 +260,25 @@ func _complete_level() -> void:
 	player.module_status.emit("KORA // EXTERIOR DETECTADO // LA AGUJA")
 	await get_tree().create_timer(1.4, false).timeout
 	player.module_status.emit("SECTOR 07 // ESCAPE COMPLETE")
+	_show_mission_result()
+
+func mission_points() -> int:
+	return MissionRank.score(run_time, damage_taken, deaths, mini(kills, regular_spawn_specs.size()) + (1 if boss_defeated else 0), regular_spawn_specs.size() + 1)
+
+func _show_mission_result() -> void:
+	var points := mission_points()
+	var layer := CanvasLayer.new(); layer.layer = 25; layer.name = "MissionResult"; add_child(layer)
+	var panel := ColorRect.new(); panel.color = Color(0.02, 0.05, 0.06, 0.88); panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); layer.add_child(panel)
+	var label := Label.new(); label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_color_override("font_color", Color("#9be84b")); label.add_theme_font_size_override("font_size", 12)
+	label.text = "MISION COMPLETADA // SECTOR 07\n\nTIEMPO  %d:%02d\nDANO RECIBIDO  %d\nREINICIOS  %d\nENEMIGOS  %d / %d\n\nPUNTOS  %d" % [int(run_time) / 60, int(run_time) % 60, damage_taken, deaths, kills + (1 if boss_defeated else 0), regular_spawn_specs.size() + 1, points]
+	layer.add_child(label)
+	var rank_label := Label.new(); rank_label.text = MissionRank.rank(points)
+	rank_label.add_theme_font_size_override("font_size", 64); rank_label.add_theme_color_override("font_color", Color("#ffd34a"))
+	rank_label.position = Vector2(360, 90); rank_label.scale = Vector2(2.5, 2.5); rank_label.pivot_offset = Vector2(20, 40)
+	layer.add_child(rank_label)
+	var tween := rank_label.create_tween(); tween.tween_property(rank_label, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not intro_finished and event.is_pressed():

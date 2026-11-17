@@ -108,35 +108,35 @@ func _begin_position(dx: float) -> void:
 		else: _bulwark_hammer()
 
 func _scrapper_quick() -> void:
-	state = &"attack_1"; audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_1_startup, false).timeout
+	state = &"attack_1"; _flash_telegraph(balance.attack_1_startup); audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_1_startup, false).timeout
 	if not _action_valid(&"attack_1"): return
 	attack_data = _attack(&"scrapper_quick", balance.attack_1_damage, Vector2(110, -35), Vector2(26, -2), Vector2(38, 34), 0.18, 0.03)
 	hitbox.activate(attack_data, facing); _spawn_ground_fx(SCRAPPER_IMPACT_FX, facing * 30.0); await get_tree().create_timer(0.09, false).timeout
 	hitbox.deactivate(); await _recover(balance.attack_1_recovery)
 
 func _scrapper_charge() -> void:
-	state = &"attack_2"; charge_cooldown = 2.2; audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_2_startup, false).timeout
+	state = &"attack_2"; charge_cooldown = 2.2; _flash_telegraph(balance.attack_2_startup); audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_2_startup, false).timeout
 	if not _action_valid(&"attack_2"): return
 	attack_data = _attack(&"scrapper_charge", balance.attack_2_damage, Vector2(175, -55), Vector2(30, -1), Vector2(48, 36), 0.24, 0.04)
 	hitbox.activate(attack_data, facing); _spawn_ground_fx(SCRAPPER_CHARGE_FX, -facing * 24.0); velocity.x = facing * balance.charge_speed
 	await get_tree().create_timer(0.34, false).timeout; hitbox.deactivate(); velocity.x = 0.0; await _recover(balance.attack_2_recovery)
 
 func _bulwark_hammer() -> void:
-	state = &"hammer_fist"; audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_1_startup, false).timeout
+	state = &"hammer_fist"; _flash_telegraph(balance.attack_1_startup); audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_1_startup, false).timeout
 	if not _action_valid(&"hammer_fist"): return
 	attack_data = _attack(&"bulwark_hammer", balance.attack_1_damage, Vector2(240, -95), Vector2(34, 4), Vector2(58, 42), 0.32, 0.065)
 	hitbox.activate(attack_data, facing); _spawn_ground_fx(BULWARK_HEAVY_FX, facing * 42.0); await get_tree().create_timer(0.13, false).timeout
 	hitbox.deactivate(); await _recover(balance.attack_1_recovery)
 
 func _bulwark_charge() -> void:
-	state = &"charge"; charge_cooldown = 3.8; audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_2_startup, false).timeout
+	state = &"charge"; charge_cooldown = 3.8; _flash_telegraph(balance.attack_2_startup); audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_2_startup, false).timeout
 	if not _action_valid(&"charge"): return
 	attack_data = _attack(&"bulwark_charge", balance.attack_2_damage, Vector2(290, -65), Vector2(40, 0), Vector2(70, 48), 0.3, 0.055)
 	hitbox.activate(attack_data, facing); _spawn_ground_fx(BULWARK_CHARGE_FX, -facing * 30.0); velocity.x = facing * balance.charge_speed
 	await get_tree().create_timer(0.52, false).timeout; hitbox.deactivate(); velocity.x = 0.0; await _recover(balance.attack_2_recovery)
 
 func _bulwark_backhand() -> void:
-	state = &"backhand"; backhand_cooldown = 4.5; audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_3_startup, false).timeout
+	state = &"backhand"; backhand_cooldown = 4.5; _flash_telegraph(balance.attack_3_startup); audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_3_startup, false).timeout
 	if not _action_valid(&"backhand"): return
 	attack_data = _attack(&"bulwark_backhand", balance.attack_3_damage, Vector2(230, -40), Vector2(30, -7), Vector2(62, 48), 0.24, 0.045)
 	hitbox.activate(attack_data, facing); _spawn_ground_fx(BULWARK_BACKHAND_FX, facing * 34.0); await get_tree().create_timer(0.12, false).timeout
@@ -144,7 +144,7 @@ func _bulwark_backhand() -> void:
 
 func _shoot_sequence(triple: bool) -> void:
 	state = &"triple_pulse" if triple else &"pulse_shot"; cooldown = balance.attack_cooldown
-	await get_tree().create_timer(balance.attack_2_startup if triple else balance.attack_1_startup, false).timeout
+	_flash_telegraph(balance.attack_2_startup if triple else balance.attack_1_startup); await get_tree().create_timer(balance.attack_2_startup if triple else balance.attack_1_startup, false).timeout
 	if state == &"dead" or hitstun > 0.0: return
 	var count := 3 if triple else 1
 	for index in range(count):
@@ -224,3 +224,14 @@ func _update_visual() -> void:
 	else: animation = &"triple_pulse" if state == &"triple_pulse" else (&"pulse_shot" if state == &"pulse_shot" else (&"move" if absf(velocity.x) > 2.0 else &"hover_idle"))
 	if sprite.animation != animation: sprite.play(animation)
 	sprite.flip_h = facing < 0.0
+
+# Readable wind-up: the body pulses white->warning red during startup so every
+# attack can be reacted to (Zero-style enemies always announce their swings).
+func _flash_telegraph(duration: float) -> void:
+	if not is_instance_valid(sprite): return
+	var tween := create_tween()
+	var half := maxf(duration * 0.5, 0.02)
+	tween.tween_property(sprite, "modulate", Color(2.2, 2.2, 2.2), half * 0.5)
+	tween.tween_property(sprite, "modulate", Color(1.8, 0.45, 0.35), half * 0.5)
+	tween.tween_property(sprite, "modulate", Color(1.6, 0.6, 0.5), half)
+	tween.tween_property(sprite, "modulate", Color.WHITE, 0.08)
