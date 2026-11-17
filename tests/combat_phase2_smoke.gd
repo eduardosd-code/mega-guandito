@@ -58,7 +58,12 @@ func _run() -> void:
 	_check(player.global_position.x > air_x, "air control changes horizontal trajectory")
 	player.dash_cooldown_left = 0.0
 	await _tap(&"dash")
-	_check(player.dash_left == 0.0, "air dash is unavailable")
+	await _frames(1)
+	_check(player.dash_left > 0.0 and player.air_dash_spent, "one air dash is available")
+	await _frames(20)
+	player.dash_cooldown_left = 0.0
+	await _tap(&"dash")
+	_check(player.dash_left == 0.0 or player.is_on_floor(), "second air dash is unavailable")
 	await _frames(80)
 	_check(player.is_on_floor(), "Guandito lands and exits airborne state")
 

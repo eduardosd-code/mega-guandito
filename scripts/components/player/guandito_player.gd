@@ -29,6 +29,18 @@ signal perfect_evade(total: int)
 @export var dash_duration := 0.14
 @export var dash_cooldown := 0.38
 
+@export_group("Wall (Zero-style)")
+@export var wall_slide_speed := 70.0
+@export var wall_jump_push := 150.0
+@export var wall_jump_lock := 0.12
+@export var wall_coyote_time := 0.08
+
+@export_group("Air Dash")
+@export var air_dash_enabled := true
+
+@export_group("Charge Attack")
+@export var charge_time := 0.55
+
 @export_group("Attack Buffer")
 @export var attack_buffer_time := 0.22
 
@@ -48,6 +60,7 @@ const ATTACKS := {
 	&"air": preload("res://resources/data/attack_air.tres"),
 	&"dash_light": preload("res://resources/data/attack_dash.tres")
 }
+const CHARGED_ATTACK := preload("res://resources/data/attack_charged.tres")
 const LEGS_MODULE := preload("res://resources/modules/legs_module_mk1.tres")
 const EVASION_MODULE := preload("res://resources/modules/overdrive_evasion_mk1.tres")
 
@@ -86,6 +99,13 @@ var base_dash := 265.0
 var was_airborne := false
 var input_lock_left := 0.0
 var dash_jumped_this_frame := false
+var air_dash_spent := false
+var wall_sliding := false
+var wall_normal_x := 0.0
+var wall_coyote_left := 0.0
+var wall_jump_lock_left := 0.0
+var charge_held := 0.0
+var charge_ready := false
 
 func _ready() -> void:
 	add_to_group("player")
@@ -126,11 +146,13 @@ func _physics_process(delta: float) -> void:
 	elif dash_left > 0.0:
 		state_machine.change(&"dash")
 		velocity = Vector2(facing * dash_speed, 0.0)
-	elif not dash_jumped_this_frame:
+	elif not dash_jumped_this_frame and wall_jump_lock_left <= 0.0:
 		_handle_movement(delta)
 	_apply_gravity(delta)
+	_update_wall_slide()
 	move_and_slide()
 	_update_ground_state()
+	_tick_charge(delta)
 
 func _tick_timers(delta: float) -> void:
 	var dash_was_active := dash_left > 0.0
@@ -138,6 +160,8 @@ func _tick_timers(delta: float) -> void:
 	if dash_was_active and dash_left == 0.0 and not attacking:
 		visual.set_action(&"dash_end", facing)
 	input_lock_left = maxf(0.0, input_lock_left - delta)
+	wall_coyote_left = maxf(0.0, wall_coyote_left - delta)
+	wall_jump_lock_left = maxf(0.0, wall_jump_lock_left - delta)
 	dash_cooldown_left = maxf(0.0, dash_cooldown_left - delta)
 	dodge_cooldown_left = maxf(0.0, dodge_cooldown_left - delta)
 	jump_buffer_left = maxf(0.0, jump_buffer_left - delta)
@@ -154,11 +178,18 @@ func _tick_timers(delta: float) -> void:
 func _handle_actions() -> void:
 	if Input.is_action_just_pressed("jump"):
 		jump_buffer_left = jump_buffer_time
-	if Input.is_action_just_pressed("dash") and is_on_floor() and dash_cooldown_left <= 0.0 and not attacking and dodge_phase == &"normal":
+	var can_air_dash := air_dash_enabled and not air_dash_spent and not is_on_floor() and not wall_sliding
+	if Input.is_action_just_pressed("dash") and (is_on_floor() or can_air_dash) and dash_cooldown_left <= 0.0 and not attacking and dodge_phase == &"normal":
 		_update_facing_from_input()
+		if not is_on_floor():
+			air_dash_spent = true
+			velocity.y = 0.0
 		_start_dash()
+	if jump_buffer_left > 0.0 and not is_on_floor() and wall_coyote_left > 0.0 and dodge_phase == &"normal" and not attacking:
+		_wall_jump()
 	if jump_buffer_left > 0.0 and (is_on_floor() or coyote_left > 0.0) and (_can_move() or dash_left > 0.0):
-		if dash_left > 0.0:
+		if dash_left > 0.0 or Input.is_action_pressed("dash"):
+			# Dash jump: holding dash on take-off carries dash speed through the air.
 			velocity.x = facing * dash_speed
 			dash_left = 0.0
 			dash_jumped_this_frame = true
@@ -234,6 +265,68 @@ func _apply_gravity(delta: float) -> void:
 		var gravity_multiplier := rise_gravity_multiplier if velocity.y < 0.0 and Input.is_action_pressed("jump") else fall_gravity_multiplier
 		velocity.y = minf(max_fall_speed, velocity.y + gravity * gravity_multiplier * delta)
 
+func _update_wall_slide() -> void:
+	wall_sliding = false
+	if is_on_floor() or attacking or dash_left > 0.0 or dodge_phase != &"normal":
+		return
+	if not is_on_wall():
+		return
+	var normal_x := get_wall_normal().x
+	var axis := Input.get_axis("move_left", "move_right")
+	if is_zero_approx(normal_x) or is_zero_approx(axis) or signf(axis) != -signf(normal_x):
+		return
+	wall_sliding = true
+	wall_normal_x = signf(normal_x)
+	wall_coyote_left = wall_coyote_time
+	air_dash_spent = false
+	air_attack_spent = false
+	facing = wall_normal_x
+	visual.facing = facing
+	if velocity.y > wall_slide_speed:
+		velocity.y = wall_slide_speed
+	state_machine.change(&"wall_slide")
+	_set_visual_action(&"fall")
+
+func _wall_jump() -> void:
+	var push := dash_speed if Input.is_action_pressed("dash") else wall_jump_push
+	velocity = Vector2(wall_normal_x * push, jump_force)
+	facing = wall_normal_x
+	visual.facing = facing
+	wall_jump_lock_left = wall_jump_lock
+	wall_coyote_left = 0.0
+	jump_buffer_left = 0.0
+	wall_sliding = false
+	state_machine.change(&"jump")
+	visual.set_action(&"jump_start", facing)
+
+func _tick_charge(delta: float) -> void:
+	var held := Input.is_action_pressed("attack_light")
+	if charge_ready and not held and not attacking and dodge_phase == &"normal" and health.current_health > 0:
+		_reset_charge()
+		_start_attack(&"charged")
+	elif held and not attacking and dodge_phase == &"normal" and health.current_health > 0:
+		charge_held += delta
+		if not charge_ready and charge_held >= charge_time:
+			charge_ready = true
+			module_status.emit("PULSO CARGADO")
+	elif not Input.is_action_pressed("attack_light"):
+		_reset_charge()
+	if charge_held > 0.15:
+		var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() * (0.04 if charge_ready else 0.02))
+		var tint := Color(1.0, 0.85, 0.3) if charge_ready else Color(0.55, 0.9, 1.0)
+		visual.modulate = Color.WHITE.lerp(tint, pulse * 0.8)
+	elif visual.modulate != Color.WHITE and hitstun_left <= 0.0:
+		visual.modulate = Color.WHITE
+
+func _reset_charge() -> void:
+	charge_held = 0.0
+	charge_ready = false
+
+func _attack_data(id: StringName) -> AttackData:
+	if id == &"charged":
+		return CHARGED_ATTACK
+	return ATTACKS[id]
+
 func _update_facing_from_input() -> void:
 	var axis := Input.get_axis("move_left", "move_right")
 	if not is_zero_approx(axis):
@@ -246,6 +339,7 @@ func _update_ground_state() -> void:
 			visual.set_action(&"land", facing)
 		coyote_left = coyote_time
 		air_attack_spent = false
+		air_dash_spent = false
 	elif velocity.y > 0.0 and not attacking and dash_left <= 0.0 and dodge_phase == &"normal":
 		state_machine.change(&"fall")
 		_set_visual_action(&"fall")
@@ -269,10 +363,10 @@ func _start_attack(id: StringName) -> void:
 	attack_buffer_left = 0.0
 	attack_token += 1
 	var token := attack_token
-	var data: AttackData = ATTACKS[id]
+	var data: AttackData = _attack_data(id)
 	state_machine.change(&"attack")
 	var visual_action: StringName = id
-	if id == &"heavy": visual_action = &"heavy_start"
+	if id in [&"heavy", &"charged"]: visual_action = &"heavy_start"
 	elif id == &"air": visual_action = &"air_light"
 	elif id == &"dash_light": visual_action = &"light_1"
 	visual.set_action(visual_action, facing)
@@ -280,13 +374,13 @@ func _start_attack(id: StringName) -> void:
 	if token != attack_token or health.current_health <= 0:
 		return
 	hitbox.activate(data, facing)
-	if id == &"heavy":
+	if id in [&"heavy", &"charged"]:
 		visual.set_action(&"heavy_attack", facing)
 	await get_tree().create_timer(data.active_time, false).timeout
 	if token != attack_token:
 		return
 	hitbox.deactivate()
-	if id == &"heavy":
+	if id in [&"heavy", &"charged"]:
 		visual.set_action(&"heavy_recovery", facing)
 	await get_tree().create_timer(data.recovery, false).timeout
 	if token != attack_token:

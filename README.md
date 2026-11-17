@@ -19,7 +19,7 @@ Validado con **Godot 4.7.2 stable**: la arena abrió en el editor sin errores y 
 | Mover / control aéreo | A/D o flechas | Stick izquierdo / D-pad |
 | Correr | Shift | LB / L1 |
 | Saltar | Espacio | A / Cross |
-| Dash terrestre ofensivo | L | B / Circle |
+| Dash (suelo y uno en el aire) | L | B / Circle |
 | Light / combo ×3 | J o Z | X / Square |
 | Heavy launcher | K o X | Y / Triangle |
 | Dodge modular | Q | RB / R1 |
@@ -33,11 +33,12 @@ Debug, solo en builds de desarrollo: **F1** hitboxes/hurtboxes, **F2** +50 XP, *
 
 - Caminar/correr, salto variable y control aéreo parcial.
 - Coyote time y jump buffering.
-- Dash exclusivamente terrestre, ofensivo y sin invulnerabilidad.
+- Dash ofensivo sin invulnerabilidad: en suelo y uno por salto en el aire (mantiene la altura). Mantener dash al saltar = dash jump.
 - Dash → Light 1 con cancel inmediato y conservación parcial de impulso.
 - Combo Light 1 → 2 → 3 con input buffering.
 - Heavy con startup comprometido y knockback vertical de launcher.
-- Un Light aéreo por salto; no existe Heavy aéreo, dash aéreo ni doble salto.
+- Un Light aéreo por salto; no existe Heavy aéreo ni doble salto.
+- Kit estilo Mega Man Zero: wall slide (empujar contra pared en el aire, caída limitada a 70 px/s), wall jump (dash + salto en pared = wall dash jump), Pulso Cargado (mantener ataque ~0,55 s y soltar; 48 de daño). Pared y aterrizaje recargan el dash aéreo.
 
 ## Sobrecarga Evasiva Mk-I
 
@@ -114,7 +115,7 @@ En build de desarrollo, toda sesión con ventana graba automáticamente las mét
 
 ## Validación y limitaciones
 
-- Verificado estáticamente: rutas `res://`, inputs semánticos, datos explícitos de ataques, ausencia de dash aéreo y ramas de riesgo del dodge.
+- Verificado estáticamente: rutas `res://`, inputs semánticos, datos explícitos de ataques y ramas de riesgo del dodge.
 - La arena se ejecutó visualmente en Godot 4.7.2 con HUD, Guandito y TrainingBots cargados y 0 errores del editor.
 - El smoke test headless comprueba run/jump/air control/landing, dash vulnerable, Dash→Light, buffering, Heavy interrumpible, launcher, restricción de Heavy aéreo, equipamiento, fases del dodge, Perfect Evade, daño ×2, limpieza de exposición y muerte durante Exposed.
 - La automatización de ventanas no puede sostener entradas con fidelidad suficiente para juzgar game feel; timings, mezcla de audio y amplitud del shake aún requieren una sesión humana con teclado y mando.
