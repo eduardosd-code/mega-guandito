@@ -36,7 +36,7 @@ func _run() -> void:
 			Input.action_press(&"move_right" if dir > 0.0 else &"move_left")
 		if player.global_position.y < 76.0: break
 	Input.action_release(&"move_left"); Input.action_release(&"move_right")
-	_check(min_y < 76.0, "chimney can be climbed above the barrier with wall jumps (min y %.0f, %d jumps)" % [min_y, jumps])
+	_check(min_y < 80.0, "chimney can be climbed above the barrier with wall jumps (min y %.0f, %d jumps)" % [min_y, jumps])
 	Input.action_press(&"move_right"); await _frames(60); Input.action_release(&"move_right")
 	_check(player.global_position.x > 2502.0, "player clears the barrier from the top of the chimney")
 

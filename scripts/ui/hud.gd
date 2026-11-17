@@ -37,6 +37,7 @@ func _process(delta: float) -> void:
 	var boss := get_tree().get_first_node_in_group("boss") as VLR03Hound
 	if boss and boss.state not in [&"dormant", &"dead"]:
 		boss_panel.visible = true; boss_bar.max_value = boss.health.max_health; boss_bar.value = boss.health.current_health
+		boss_bar.modulate = Color(1.6, 0.55, 0.45) if boss.phase == 2 else Color.WHITE
 	else:
 		boss_panel.visible = false
 	if not OS.is_debug_build():

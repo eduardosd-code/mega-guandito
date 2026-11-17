@@ -11,6 +11,7 @@ const GROUND_Y := 24.0
 const BALANCE := preload("res://resources/enemies/hound_balance.tres")
 
 signal defeated
+signal phase_changed(phase: int)
 signal audio_hook(event_name: StringName, world_position: Vector2)
 @export var max_health := 850
 @onready var health: HealthComponent = $HealthComponent
@@ -29,6 +30,8 @@ var stagger_damage := 0
 var stagger_window_left := 0.0
 var stagger_threshold := 110
 var attack_token := 0
+var phase := 1
+var tempo := 1.0  # cooldown multiplier; phase 2 attacks come faster
 
 func _ready() -> void:
 	add_to_group("boss")
@@ -62,11 +65,13 @@ func _physics_process(delta: float) -> void:
 		hitstun -= delta; velocity.x = move_toward(velocity.x, 0.0, 180.0 * delta)
 		if hitstun <= 0.0 and state == &"stagger": state = &"idle"; cooldown = 0.8
 		move_and_slide(); _update_visual(); return
-	cooldown -= delta
+	cooldown -= delta / tempo
 	if is_instance_valid(player) and state not in [&"charge", &"leap", &"claw", &"burst"]: facing = signf(player.global_position.x - global_position.x)
+	if phase == 1 and health.current_health <= max_health / 2 and state == &"idle":
+		_enter_phase_two(); move_and_slide(); _update_visual(); return
 	if cooldown <= 0.0 and state == &"idle":
 		_choose_attack()
-	if state == &"charge": velocity.x = facing * BALANCE.charge_speed
+	if state == &"charge": velocity.x = facing * BALANCE.charge_speed * (1.15 if phase == 2 else 1.0)
 	move_and_slide(); _update_visual()
 
 func _telegraph(duration: float, label: StringName) -> bool:
@@ -77,6 +82,18 @@ func _telegraph(duration: float, label: StringName) -> bool:
 func _choose_attack() -> void:
 	if not is_instance_valid(player): return
 	var distance := absf(player.global_position.x - global_position.x)
+	if phase == 2:
+		# Phase 2 mixes in two new patterns and never repeats the same one twice.
+		if distance > 200.0:
+			if last_attack == &"double_charge": _fan_burst()
+			else: _double_charge()
+		elif distance > 105.0:
+			if last_attack == &"pounce": _fan_burst()
+			else: _leap_slam()
+		else:
+			if last_attack == &"claw": _leap_slam()
+			else: _claw()
+		return
 	if distance > 230.0:
 		if last_attack == &"charge": _burst()
 		else: _charge()
@@ -132,13 +149,59 @@ func _burst() -> void:
 	if state == &"dead": return
 	state = &"idle"; cooldown = 1.2
 
+func _enter_phase_two() -> void:
+	# Roar: brief invulnerable pause that clearly announces the new phase.
+	phase = 2; tempo = 0.68; stagger_threshold = 150; attack_token += 1; hitbox.deactivate()
+	state = &"phase_shift"; velocity.x = 0.0; phase_changed.emit(2)
+	audio_hook.emit(&"hound_roar", global_position)
+	var manager := get_tree().get_first_node_in_group("game_manager")
+	if manager: manager.screen_shake(5.0, 0.6); manager.spawn_impact(global_position, "heavy")
+	var tween := create_tween().set_loops(4)
+	tween.tween_property(sprite, "modulate", Color(2.0, 0.5, 0.4), 0.12); tween.tween_property(sprite, "modulate", Color.WHITE, 0.12)
+	await get_tree().create_timer(1.1, false).timeout
+	if state == &"dead": return
+	sprite.modulate = Color(1.25, 0.8, 0.75)
+	state = &"idle"; cooldown = 0.3
+
+func _double_charge() -> void:
+	if not await _telegraph(BALANCE.attack_1_startup * 0.85, &"charge_warning"): return
+	last_attack = &"double_charge"
+	for leg in range(2):
+		if state == &"dead": return
+		state = &"charge"; audio_hook.emit(&"hound_charge", global_position)
+		_set_attack(BALANCE.attack_1_damage, Vector2(280, -75), Vector2(55, 0), Vector2(78, 44)); hitbox.activate(attack_data, facing)
+		_spawn_ground_fx(CHARGE_FX, -facing * 36.0)
+		await get_tree().create_timer(0.55, false).timeout
+		hitbox.deactivate()
+		if leg == 0 and state != &"dead":
+			# Skid, turn toward the player and go again: punish with a wall jump over it.
+			state = &"charge_warning"; velocity.x = 0.0
+			await get_tree().create_timer(0.32, false).timeout
+			if is_instance_valid(player): facing = signf(player.global_position.x - global_position.x)
+	if state == &"dead": return
+	state = &"idle"; cooldown = BALANCE.attack_1_recovery
+
+func _fan_burst() -> void:
+	if not await _telegraph(0.7, &"burst_warning"): return
+	last_attack = &"burst"; state = &"burst"
+	_spawn_ground_fx(BURST_FX, facing * 46.0); audio_hook.emit(&"projectile_fire", global_position)
+	# Three shots: flat, rising and falling. Gaps let a dash or jump slip through.
+	for angle in [0.0, -0.32, 0.22]:
+		var shot := EnemyProjectile.new(); get_parent().add_child(shot); shot.global_position = global_position + Vector2(facing * 34, -18)
+		shot.setup(facing, BALANCE.projectile_speed, 20); shot.velocity = Vector2(facing * BALANCE.projectile_speed, 0.0).rotated(angle * facing); shot.use_hound_visual()
+	if state == &"dead": return
+	state = &"idle"; cooldown = 1.0
+
 func _set_attack(damage: int, knockback: Vector2, offset: Vector2, size: Vector2) -> void:
 	attack_data.damage = damage; attack_data.knockback = knockback; attack_data.hitstun = 0.32
 	attack_data.hitbox_offset = offset; attack_data.hitbox_size = size
 
 func _on_hit(data: AttackData, direction: float, attacker: Node) -> void:
-	if state in [&"dead", &"dormant"]: return
-	health.take_damage(data.damage); velocity += Vector2(data.knockback.x * direction * 0.42, data.knockback.y * 0.36)
+	if state in [&"dead", &"dormant", &"phase_shift"]: return
+	health.take_damage(data.damage)
+	var base_tint := Color(1.25, 0.8, 0.75) if phase == 2 else Color.WHITE
+	sprite.modulate = Color(2.5, 2.5, 2.5)
+	create_tween().tween_property(sprite, "modulate", base_tint, 0.1); velocity += Vector2(data.knockback.x * direction * 0.42, data.knockback.y * 0.36)
 	if health.current_health <= 0: return
 	stagger_window_left = 1.4; stagger_damage += data.damage
 	var super_armor := state == &"charge"

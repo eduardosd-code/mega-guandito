@@ -135,6 +135,7 @@ func _spawn_from_spec(spec: Dictionary) -> SectorEnemy:
 func _spawn_hound() -> void:
 	if boss_defeated: return
 	hound = HOUND.instantiate() as VLR03Hound; add_child(hound); hound.position = Vector2(4660,175); hound.defeated.connect(_on_hound_defeated)
+	hound.phase_changed.connect(func(_p): player.module_status.emit("VLR-03 // LIMITADOR DESACTIVADO // FASE 2"))
 
 func _add_floor(top_left: Vector2, size: Vector2) -> void:
 	var body := StaticBody2D.new(); body.collision_layer = 16; body.collision_mask = 0; body.position = top_left + size * 0.5

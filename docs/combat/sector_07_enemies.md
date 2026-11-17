@@ -52,3 +52,10 @@ Phase 7 keeps the existing `HealthComponent`, `HurtboxComponent`, `HitboxCompone
 - Lightweight horizontal separation prevents regular enemies occupying exactly the same position.
 - Dangerous attacks use animation state, startup pauses and existing FX. Audio hooks are signals only: `enemy_attack`, `enemy_hit`, `enemy_death`, `armor_break`, `projectile_fire`, `projectile_hit`, `hound_charge`, `hound_pounce`, `hound_destroy`.
 - FX never own hitboxes. All damage windows remain on `HitboxComponent` or `EnemyProjectile`.
+
+## VLR-03 HOUND — Fase 2 (pase Zero)
+
+- Al 50% de vida: rugido invulnerable de 1,1 s (sacudida, parpadeo rojo, mensaje "FASE 2"). La barra de jefe se tiñe de rojo.
+- Cooldowns ×0,68, carga un 15% más rápida y umbral de stagger de 150.
+- Patrones nuevos: **doble carga** (carga, derrape de 0,32 s, se gira y vuelve a cargar; castígala saltando por encima) y **abanico** (tres proyectiles: recto, ascendente y descendente).
+- Todos los golpes hacen parpadear al HOUND en blanco.
