@@ -36,7 +36,6 @@ var armor_broken_left := 0.0
 var backhand_cooldown := 0.0
 var charge_cooldown := 0.0
 var retreat_available := true
-var action_token := 0
 var attack_data: AttackData
 static var shared_melee_slot_until := 0
 
@@ -53,123 +52,142 @@ func _configure_visual() -> void:
 	sprite.sprite_frames = EnemySprites.build(visual_role)
 	sprite.position = Vector2(0, -22 if role == Role.SENTRY else (-27 if role == Role.BULWARK else -11))
 
+# --- State machine -----------------------------------------------------------
+# `state` is the readable/visual label (idle, chase, attack_1, charge, recover...).
+# `phase` drives timing: empty (free movement), position, windup, active, recover,
+# retreat. Every phase owns a countdown, so a hit cancels an attack by clearing
+# the phase: no pending awaits can resume later.
+var phase: StringName = &""
+var phase_left := 0.0
+var move: Dictionary = {}
+var shots_left := 0
+
 func _physics_process(delta: float) -> void:
 	if state == &"dead": return
 	cooldown = maxf(0.0, cooldown - delta); backhand_cooldown = maxf(0.0, backhand_cooldown - delta)
 	charge_cooldown = maxf(0.0, charge_cooldown - delta); armor_broken_left = maxf(0.0, armor_broken_left - delta)
+	if role != Role.SENTRY and not is_on_floor(): velocity.y = minf(500.0, velocity.y + 850.0 * delta)
 	if hitstun > 0.0:
-		hitstun -= delta; state = &"hit"; velocity.x = move_toward(velocity.x, 0.0, 900.0 * delta)
-		if hitstun <= 0.0: state = &"idle"
+		hitstun -= delta; velocity.x = move_toward(velocity.x, 0.0, 900.0 * delta)
+		if state != &"armor_broken": state = &"hit"
+		if hitstun <= 0.0: state = _rest_state()
 		move_and_slide(); _update_visual(); return
 	if not is_instance_valid(player): player = get_tree().get_first_node_in_group("player"); return
 	var dx := player.global_position.x - global_position.x
-	if dx != 0.0: facing = signf(dx)
-	if role == Role.SENTRY: _tick_sentry(delta, dx)
-	else: _tick_ground_enemy(delta, dx)
+	if phase != &"": _tick_phase(delta, dx)
+	else:
+		if dx != 0.0: facing = signf(dx)
+		if role == Role.SENTRY: _tick_sentry(delta, dx)
+		else: _tick_ground_enemy(delta, dx)
 	move_and_slide(); _update_visual()
 
+func _rest_state() -> StringName:
+	return &"hover" if role == Role.SENTRY else &"idle"
+
+func _enter_phase(next: StringName, duration: float) -> void:
+	phase = next; phase_left = duration
+
+func _cancel_action() -> void:
+	phase = &""; phase_left = 0.0; move = {}; shots_left = 0; hitbox.deactivate()
+
 func _tick_ground_enemy(delta: float, dx: float) -> void:
-	if not is_on_floor(): velocity.y = minf(500.0, velocity.y + 850.0 * delta)
-	if state in [&"attack_2", &"charge"]: return
-	if state not in [&"idle", &"chase", &"walk"]:
-		velocity.x = move_toward(velocity.x, 0.0, 1500.0 * delta); return
 	if absf(dx) > balance.detection_range:
 		state = &"idle"; velocity.x = move_toward(velocity.x, 0.0, 700.0 * delta); return
 	if absf(dx) > balance.preferred_range:
 		state = &"chase" if role == Role.SCRAPPER else &"walk"
 		velocity.x = move_toward(velocity.x, facing * balance.move_speed + _separation_velocity(), 650.0 * delta)
 	elif cooldown <= 0.0 and _claim_melee_slot():
-		_begin_position(dx)
-	else: velocity.x = move_toward(velocity.x, _separation_velocity(), 1100.0 * delta)
+		state = &"position"; velocity.x = 0.0; _enter_phase(&"position", balance.position_time)
+	else:
+		state = &"idle"; velocity.x = move_toward(velocity.x, _separation_velocity(), 1100.0 * delta)
 
 func _tick_sentry(delta: float, dx: float) -> void:
 	velocity.y = move_toward(velocity.y, sin(Time.get_ticks_msec() * 0.004) * 14.0, 80.0 * delta)
-	if state == &"retreat": velocity.x = -facing * balance.move_speed
-	elif state not in [&"hover", &"idle", &"position"]: velocity.x = move_toward(velocity.x, 0.0, 500.0 * delta)
-	elif absf(dx) < 92.0 and retreat_available:
-		state = &"retreat"; retreat_available = false; _finish_retreat()
+	if absf(dx) < 92.0 and retreat_available:
+		state = &"retreat"; retreat_available = false; _enter_phase(&"retreat", 0.38)
 	elif absf(dx) > balance.preferred_range + 55.0:
 		state = &"position"; velocity.x = move_toward(velocity.x, facing * balance.move_speed, 420.0 * delta)
 	elif absf(dx) < balance.preferred_range - 45.0:
 		state = &"position"; velocity.x = move_toward(velocity.x, -facing * balance.move_speed * 0.55, 420.0 * delta)
-	elif cooldown <= 0.0: _shoot_sequence(balance.enable_alternate_attack)
-	else: state = &"hover"; velocity.x = move_toward(velocity.x, 0.0, 500.0 * delta)
-
-func _begin_position(dx: float) -> void:
-	state = &"position"; velocity.x = 0.0; action_token += 1; var token := action_token
-	await get_tree().create_timer(balance.position_time, false).timeout
-	if token != action_token or state == &"dead" or hitstun > 0.0: return
-	if role == Role.SCRAPPER:
-		if absf(dx) > 34.0 and charge_cooldown <= 0.0: _scrapper_charge()
-		else: _scrapper_quick()
+	elif cooldown <= 0.0:
+		var triple: bool = balance.enable_alternate_attack
+		cooldown = balance.attack_cooldown
+		_begin_move({"state": &"triple_pulse" if triple else &"pulse_shot",
+			"startup": balance.attack_2_startup if triple else balance.attack_1_startup,
+			"shots": 3 if triple else 1,
+			"recovery": balance.attack_2_recovery if triple else balance.attack_1_recovery})
 	else:
-		if absf(dx) < 42.0 and backhand_cooldown <= 0.0: _bulwark_backhand()
-		elif absf(dx) > 78.0 and charge_cooldown <= 0.0: _bulwark_charge()
-		else: _bulwark_hammer()
+		state = &"hover"; velocity.x = move_toward(velocity.x, 0.0, 500.0 * delta)
 
-func _scrapper_quick() -> void:
-	state = &"attack_1"; _flash_telegraph(balance.attack_1_startup); audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_1_startup, false).timeout
-	if not _action_valid(&"attack_1"): return
-	attack_data = _attack(&"scrapper_quick", balance.attack_1_damage, Vector2(110, -35), Vector2(26, -2), Vector2(38, 34), 0.18, 0.03)
-	hitbox.activate(attack_data, facing); _spawn_ground_fx(SCRAPPER_IMPACT_FX, facing * 30.0); await get_tree().create_timer(0.09, false).timeout
-	hitbox.deactivate(); await _recover(balance.attack_1_recovery)
+func _tick_phase(delta: float, dx: float) -> void:
+	phase_left -= delta
+	match phase:
+		&"position":
+			velocity.x = move_toward(velocity.x, 0.0, 1500.0 * delta)
+			if phase_left <= 0.0: _begin_move(_choose_melee(dx))
+		&"windup":
+			velocity.x = move_toward(velocity.x, 0.0, 1500.0 * delta)
+			if role == Role.SENTRY: velocity.y = move_toward(velocity.y, 0.0, 80.0 * delta)
+			if phase_left <= 0.0: _start_active()
+		&"active":
+			if move.has("lunge"): velocity.x = facing * balance.charge_speed
+			else: velocity.x = move_toward(velocity.x, 0.0, 1500.0 * delta)
+			if shots_left > 0 and phase_left <= 0.0:
+				_fire_sentry_projectile(); shots_left -= 1; phase_left = 0.16 if shots_left > 0 else 0.0
+			if phase_left <= 0.0 and shots_left == 0:
+				hitbox.deactivate(); velocity.x = 0.0
+				if role == Role.SENTRY: retreat_available = true
+				state = &"recover"; _enter_phase(&"recover", move.get("recovery", 0.2))
+		&"recover":
+			velocity.x = move_toward(velocity.x, 0.0, 1500.0 * delta)
+			if phase_left <= 0.0:
+				_cancel_action(); state = _rest_state(); cooldown = balance.attack_cooldown
+		&"retreat":
+			velocity.x = -facing * balance.move_speed
+			if phase_left <= 0.0:
+				_cancel_action(); state = &"hover"; velocity.x = 0.0; cooldown = maxf(cooldown, 0.12)
 
-func _scrapper_charge() -> void:
-	state = &"attack_2"; charge_cooldown = 2.2; _flash_telegraph(balance.attack_2_startup); audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_2_startup, false).timeout
-	if not _action_valid(&"attack_2"): return
-	attack_data = _attack(&"scrapper_charge", balance.attack_2_damage, Vector2(175, -55), Vector2(30, -1), Vector2(48, 36), 0.24, 0.04)
-	hitbox.activate(attack_data, facing); _spawn_ground_fx(SCRAPPER_CHARGE_FX, -facing * 24.0); velocity.x = facing * balance.charge_speed
-	await get_tree().create_timer(0.34, false).timeout; hitbox.deactivate(); velocity.x = 0.0; await _recover(balance.attack_2_recovery)
+func _choose_melee(dx: float) -> Dictionary:
+	if role == Role.SCRAPPER:
+		if absf(dx) > 34.0 and charge_cooldown <= 0.0:
+			charge_cooldown = 2.2
+			return {"state": &"attack_2", "startup": balance.attack_2_startup, "active": 0.34, "recovery": balance.attack_2_recovery, "lunge": true,
+				"data": _attack(&"scrapper_charge", balance.attack_2_damage, Vector2(175, -55), Vector2(30, -1), Vector2(48, 36), 0.24, 0.04), "fx": SCRAPPER_CHARGE_FX, "fx_x": -24.0}
+		return {"state": &"attack_1", "startup": balance.attack_1_startup, "active": 0.09, "recovery": balance.attack_1_recovery,
+			"data": _attack(&"scrapper_quick", balance.attack_1_damage, Vector2(110, -35), Vector2(26, -2), Vector2(38, 34), 0.18, 0.03), "fx": SCRAPPER_IMPACT_FX, "fx_x": 30.0}
+	if absf(dx) < 42.0 and backhand_cooldown <= 0.0:
+		backhand_cooldown = 4.5
+		return {"state": &"backhand", "startup": balance.attack_3_startup, "active": 0.12, "recovery": balance.attack_3_recovery,
+			"data": _attack(&"bulwark_backhand", balance.attack_3_damage, Vector2(230, -40), Vector2(30, -7), Vector2(62, 48), 0.24, 0.045), "fx": BULWARK_BACKHAND_FX, "fx_x": 34.0}
+	if absf(dx) > 78.0 and charge_cooldown <= 0.0:
+		charge_cooldown = 3.8
+		return {"state": &"charge", "startup": balance.attack_2_startup, "active": 0.52, "recovery": balance.attack_2_recovery, "lunge": true,
+			"data": _attack(&"bulwark_charge", balance.attack_2_damage, Vector2(290, -65), Vector2(40, 0), Vector2(70, 48), 0.3, 0.055), "fx": BULWARK_CHARGE_FX, "fx_x": -30.0}
+	return {"state": &"hammer_fist", "startup": balance.attack_1_startup, "active": 0.13, "recovery": balance.attack_1_recovery,
+		"data": _attack(&"bulwark_hammer", balance.attack_1_damage, Vector2(240, -95), Vector2(34, 4), Vector2(58, 42), 0.32, 0.065), "fx": BULWARK_HEAVY_FX, "fx_x": 42.0}
 
-func _bulwark_hammer() -> void:
-	state = &"hammer_fist"; _flash_telegraph(balance.attack_1_startup); audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_1_startup, false).timeout
-	if not _action_valid(&"hammer_fist"): return
-	attack_data = _attack(&"bulwark_hammer", balance.attack_1_damage, Vector2(240, -95), Vector2(34, 4), Vector2(58, 42), 0.32, 0.065)
-	hitbox.activate(attack_data, facing); _spawn_ground_fx(BULWARK_HEAVY_FX, facing * 42.0); await get_tree().create_timer(0.13, false).timeout
-	hitbox.deactivate(); await _recover(balance.attack_1_recovery)
+func _begin_move(next_move: Dictionary) -> void:
+	move = next_move; state = move["state"]; velocity.x = 0.0
+	_flash_telegraph(move["startup"])
+	if role != Role.SENTRY: audio_hook.emit(&"enemy_attack", global_position)
+	_enter_phase(&"windup", move["startup"])
 
-func _bulwark_charge() -> void:
-	state = &"charge"; charge_cooldown = 3.8; _flash_telegraph(balance.attack_2_startup); audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_2_startup, false).timeout
-	if not _action_valid(&"charge"): return
-	attack_data = _attack(&"bulwark_charge", balance.attack_2_damage, Vector2(290, -65), Vector2(40, 0), Vector2(70, 48), 0.3, 0.055)
-	hitbox.activate(attack_data, facing); _spawn_ground_fx(BULWARK_CHARGE_FX, -facing * 30.0); velocity.x = facing * balance.charge_speed
-	await get_tree().create_timer(0.52, false).timeout; hitbox.deactivate(); velocity.x = 0.0; await _recover(balance.attack_2_recovery)
-
-func _bulwark_backhand() -> void:
-	state = &"backhand"; backhand_cooldown = 4.5; _flash_telegraph(balance.attack_3_startup); audio_hook.emit(&"enemy_attack", global_position); await get_tree().create_timer(balance.attack_3_startup, false).timeout
-	if not _action_valid(&"backhand"): return
-	attack_data = _attack(&"bulwark_backhand", balance.attack_3_damage, Vector2(230, -40), Vector2(30, -7), Vector2(62, 48), 0.24, 0.045)
-	hitbox.activate(attack_data, facing); _spawn_ground_fx(BULWARK_BACKHAND_FX, facing * 34.0); await get_tree().create_timer(0.12, false).timeout
-	hitbox.deactivate(); await _recover(balance.attack_3_recovery)
-
-func _shoot_sequence(triple: bool) -> void:
-	state = &"triple_pulse" if triple else &"pulse_shot"; cooldown = balance.attack_cooldown
-	_flash_telegraph(balance.attack_2_startup if triple else balance.attack_1_startup); await get_tree().create_timer(balance.attack_2_startup if triple else balance.attack_1_startup, false).timeout
-	if state == &"dead" or hitstun > 0.0: return
-	var count := 3 if triple else 1
-	for index in range(count):
-		_fire_sentry_projectile()
-		if index < count - 1: await get_tree().create_timer(0.16, false).timeout
-	retreat_available = true; await _recover(balance.attack_2_recovery if triple else balance.attack_1_recovery)
+func _start_active() -> void:
+	if move.has("shots"):
+		shots_left = move["shots"]; _enter_phase(&"active", 0.0); return
+	attack_data = move["data"]; hitbox.activate(attack_data, facing)
+	if move.has("fx"):
+		var fx_x: float = move["fx_x"]; _spawn_ground_fx(move["fx"], facing * fx_x)
+	_enter_phase(&"active", move["active"])
 
 func _fire_sentry_projectile() -> void:
 	_spawn_fx(SENTRY_MUZZLE_FX, Vector2(facing * 25.0, -8.0)); audio_hook.emit(&"projectile_fire", global_position)
 	var shot := EnemyProjectile.new(); get_parent().add_child(shot); shot.global_position = global_position + Vector2(facing * 22, -8)
 	shot.setup(facing, balance.projectile_speed, balance.attack_1_damage); shot.use_sentry_visual()
 
-func _finish_retreat() -> void:
-	await get_tree().create_timer(0.38, false).timeout
-	if state == &"retreat": state = &"hover"; velocity.x = 0.0; cooldown = 0.12
-
-func _recover(duration: float) -> void:
-	state = &"recover"; await get_tree().create_timer(duration, false).timeout
-	if state != &"dead": state = &"idle" if role != Role.SENTRY else &"hover"; cooldown = balance.attack_cooldown
-
 func _attack(id: StringName, damage: int, knockback: Vector2, offset: Vector2, size: Vector2, stun: float, stop: float) -> AttackData:
 	var data := AttackData.new(); data.id = id; data.damage = damage; data.knockback = knockback; data.hitbox_offset = offset
 	data.hitbox_size = size; data.hitstun = stun; data.hitstop = stop; return data
-
-func _action_valid(expected: StringName) -> bool: return state == expected and hitstun <= 0.0 and health.current_health > 0
 
 func _claim_melee_slot() -> bool:
 	var now := Time.get_ticks_msec()
@@ -188,12 +206,12 @@ func _on_hit(data: AttackData, direction: float, attacker: Node) -> void:
 	if state == &"dead": return
 	var heavy_break := role == Role.BULWARK and (data.id == &"heavy" or data.launcher)
 	if heavy_break and armor_broken_left <= 0.0:
-		armor_broken_left = balance.armor_break_duration; state = &"armor_broken"; hitstun = 0.3; action_token += 1; hitbox.deactivate()
+		armor_broken_left = balance.armor_break_duration; state = &"armor_broken"; hitstun = 0.3; _cancel_action()
 		armor_broken.emit(self); audio_hook.emit(&"armor_break", global_position); _spawn_fx(SCRAPPER_SPARKS_FX, Vector2.ZERO)
 	else:
 		var armored := role == Role.BULWARK and armor_broken_left <= 0.0
 		var super_armored := role == Role.BULWARK and state == &"charge"
-		if not armored and not super_armored: hitstun = data.hitstun; state = &"hit"; action_token += 1; hitbox.deactivate()
+		if not armored and not super_armored: hitstun = data.hitstun; state = &"hit"; _cancel_action()
 	var resistance := 0.28 if role == Role.BULWARK else (0.65 if role == Role.SENTRY else 1.0)
 	health.take_damage(data.damage); velocity += Vector2(data.knockback.x * direction * resistance, data.knockback.y * resistance)
 	if attacker and attacker.has_method("apply_hitstop"): attacker.apply_hitstop(data.hitstop)
@@ -202,7 +220,7 @@ func _on_hit(data: AttackData, direction: float, attacker: Node) -> void:
 	audio_hook.emit(&"enemy_hit", global_position); _update_visual()
 
 func _on_died() -> void:
-	state = &"dead"; action_token += 1; hitbox.deactivate(); $Hurtbox.set_deferred("monitorable", false); audio_hook.emit(&"enemy_death", global_position)
+	state = &"dead"; _cancel_action(); $Hurtbox.set_deferred("monitorable", false); audio_hook.emit(&"enemy_death", global_position)
 	if is_instance_valid(player): player.add_xp(balance.xp_reward)
 	defeated.emit(self); _update_visual(); await get_tree().create_timer(0.65, false).timeout; queue_free()
 

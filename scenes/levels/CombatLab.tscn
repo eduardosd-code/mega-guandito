@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://dvxsn3tp5o15f"]
+
+[ext_resource type="PackedScene" path="res://scenes/levels/combat_lab.tscn" id="1"]
+
+[node name="CombatLab" unique_id=2118045900 instance=ExtResource("1")]
+
+[node name="Status" parent="DebugHUD/Panel" index="0"]
+layout_mode = 0
+
+[node name="Help" parent="DebugHUD/Panel" index="1"]
+layout_mode = 0

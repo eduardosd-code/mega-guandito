@@ -1,0 +1,65 @@
+{
+	"damage_events": [],
+	"evasion": {
+		"dodges": 0,
+		"hits_taken": 0,
+		"perfect_evades": 0,
+		"perfect_ratio": 0.0,
+		"total_damage_taken": 0,
+		"x2_exposed_hits": 0
+	},
+	"heavy": {
+		"completed": 0,
+		"interrupt_progress_avg": 0.0,
+		"interrupted": 0,
+		"punish_ratio": 0.0,
+		"started": 0
+	},
+	"input_failures": {
+		"attack_buffer_expired": 0,
+		"dash_rejected_air": 0,
+		"dash_rejected_cooldown": 0,
+		"dodge_rejected_air": 0,
+		"dodge_rejected_busy": 0,
+		"dodge_rejected_cooldown": 0,
+		"dodge_rejected_locked": 0,
+		"jump_buffer_expired": 0,
+		"light_ignored_air_spent": 0,
+		"light_ignored_dodging": 0,
+		"light_ignored_other": 0,
+		"light_ignored_recovery": 0
+	},
+	"meta": {
+		"elapsed_seconds": 10.42,
+		"engine": "4.7.2-stable (official)",
+		"final": true,
+		"scene": "sector07.tscn",
+		"session_id": "20261117100643"
+	},
+	"movement": {
+		"cancel_ratio": 0.0,
+		"dash_light_distance_avg_px": 0.0,
+		"dash_light_distance_max_px": 0.0,
+		"dash_light_duration_avg_s": 0.0,
+		"dash_to_light_cancels": 0,
+		"dashes": 0
+	},
+	"timeline": [
+		{
+			"event": "module_power_core..._online",
+			"t": 0.783
+		},
+		{
+			"event": "module_motor_systems..._online",
+			"t": 1.583
+		},
+		{
+			"event": "module_memory..._error",
+			"t": 2.383
+		},
+		{
+			"event": "module_control_restored",
+			"t": 3.183
+		}
+	]
+}

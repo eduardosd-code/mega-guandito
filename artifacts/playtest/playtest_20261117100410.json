@@ -1,0 +1,185 @@
+{
+	"damage_events": [],
+	"evasion": {
+		"dodges": 0,
+		"hits_taken": 0,
+		"perfect_evades": 0,
+		"perfect_ratio": 0.0,
+		"total_damage_taken": 0,
+		"x2_exposed_hits": 0
+	},
+	"heavy": {
+		"completed": 2,
+		"interrupt_progress_avg": 0.0,
+		"interrupted": 0,
+		"punish_ratio": 0.0,
+		"started": 2
+	},
+	"input_failures": {
+		"attack_buffer_expired": 0,
+		"dash_rejected_air": 0,
+		"dash_rejected_cooldown": 1,
+		"dodge_rejected_air": 0,
+		"dodge_rejected_busy": 0,
+		"dodge_rejected_cooldown": 0,
+		"dodge_rejected_locked": 0,
+		"jump_buffer_expired": 1,
+		"light_ignored_air_spent": 2,
+		"light_ignored_dodging": 0,
+		"light_ignored_other": 0,
+		"light_ignored_recovery": 10
+	},
+	"meta": {
+		"elapsed_seconds": 27.07,
+		"engine": "4.7.2-stable (official)",
+		"final": true,
+		"scene": "sector07.tscn",
+		"session_id": "20261117100410"
+	},
+	"movement": {
+		"cancel_ratio": 0.0,
+		"dash_light_distance_avg_px": 0.0,
+		"dash_light_distance_max_px": 0.0,
+		"dash_light_duration_avg_s": 0.0,
+		"dash_to_light_cancels": 0,
+		"dashes": 2
+	},
+	"timeline": [
+		{
+			"event": "module_power_core..._online",
+			"t": 0.8
+		},
+		{
+			"event": "module_motor_systems..._online",
+			"t": 1.6
+		},
+		{
+			"event": "module_memory..._error",
+			"t": 2.4
+		},
+		{
+			"event": "module_control_restored",
+			"t": 3.2
+		},
+		{
+			"event": "attack_air",
+			"t": 10.9
+		},
+		{
+			"event": "attack_light_1",
+			"t": 11.467
+		},
+		{
+			"event": "attack_light_2",
+			"t": 11.683
+		},
+		{
+			"event": "attack_light_3",
+			"t": 11.95
+		},
+		{
+			"event": "attack_heavy",
+			"t": 12.533
+		},
+		{
+			"event": "heavy_completed",
+			"t": 13.117
+		},
+		{
+			"event": "attack_heavy",
+			"t": 13.35
+		},
+		{
+			"event": "heavy_completed",
+			"t": 13.933
+		},
+		{
+			"event": "dash",
+			"t": 16.583
+		},
+		{
+			"event": "dash",
+			"t": 17.0
+		},
+		{
+			"event": "attack_air",
+			"t": 18.033
+		},
+		{
+			"event": "module_firma_hostil_//_j:_martillo_de_pulso",
+			"t": 18.1
+		},
+		{
+			"event": "module_arena_//_first_contact",
+			"t": 18.167
+		},
+		{
+			"event": "attack_light_1",
+			"t": 18.467
+		},
+		{
+			"event": "attack_light_2",
+			"t": 18.683
+		},
+		{
+			"event": "attack_light_3",
+			"t": 18.95
+		},
+		{
+			"event": "level_up_1",
+			"t": 19.033
+		},
+		{
+			"event": "attack_light_1",
+			"t": 19.383
+		},
+		{
+			"event": "attack_air",
+			"t": 20.883
+		},
+		{
+			"event": "attack_light_1",
+			"t": 21.483
+		},
+		{
+			"event": "level_up_1",
+			"t": 21.517
+		},
+		{
+			"event": "attack_light_2",
+			"t": 21.717
+		},
+		{
+			"event": "attack_light_3",
+			"t": 21.967
+		},
+		{
+			"event": "jump_buffer_expired",
+			"t": 22.2
+		},
+		{
+			"event": "attack_air",
+			"t": 24.25
+		},
+		{
+			"event": "attack_light_1",
+			"t": 24.933
+		},
+		{
+			"event": "attack_light_2",
+			"t": 25.15
+		},
+		{
+			"event": "attack_light_3",
+			"t": 25.417
+		},
+		{
+			"event": "attack_light_1",
+			"t": 25.833
+		},
+		{
+			"event": "level_up_1",
+			"t": 25.867
+		}
+	]
+}
