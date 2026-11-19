@@ -214,7 +214,7 @@ func _handle_actions() -> void:
 
 func _handle_light_input() -> void:
 	if attacking:
-		if current_attack in [&"light_1", &"light_2", &"dash_light"]:
+		if current_attack != &"air":
 			attack_buffered = true
 			attack_buffer_left = attack_buffer_time
 		return
@@ -393,7 +393,14 @@ func _start_attack(id: StringName) -> void:
 		attack_buffered = false
 		combo_step += 1
 		_start_attack(StringName("light_%d" % combo_step))
+	elif attack_buffered and attack_buffer_left > 0.0 and is_on_floor() and dodge_phase == &"normal":
+		# Press during Light 3 / Heavy / Charged recovery starts a fresh combo
+		# instead of being dropped (playtest: 10 ignored presses in 27 s).
+		attack_buffered = false
+		combo_step = 1
+		_start_attack(&"light_1")
 	else:
+		attack_buffered = false
 		_set_visual_action(&"idle" if is_on_floor() else (&"jump" if velocity.y < 0.0 else &"fall"))
 
 func _interrupt_attack() -> void:

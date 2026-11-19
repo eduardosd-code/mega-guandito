@@ -47,6 +47,16 @@ func _run() -> void:
 	_check(player.current_attack == &"charged", "releasing a full charge fires the charged attack")
 	await _frames(40)
 
+	# Buffer after a non-chaining attack starts a fresh combo.
+	player._start_attack(&"heavy"); await _frames(20)
+	Input.action_press(&"attack_light"); await _frames(1); Input.action_release(&"attack_light")
+	var started_light := false
+	for _index in range(60):
+		await physics_frame
+		if player.current_attack == &"light_1": started_light = true; break
+	_check(started_light, "press during Heavy recovery is buffered into Light 1")
+	await _frames(40)
+
 	# Trauma camera.
 	var camera := player.get_node("Camera2D")
 	camera.add_trauma(0.6); await _frames(2)
