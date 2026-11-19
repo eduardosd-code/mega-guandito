@@ -6,7 +6,7 @@ const REQUIRED := [
 	&"dash_start", &"dash", &"dash_end", &"light_1", &"light_2", &"light_3",
 	&"heavy_start", &"heavy_attack", &"heavy_recovery", &"air_light",
 	&"dodge_start", &"dodge_invulnerable", &"dodge_exposed", &"hit", &"death",
-	&"module_install"
+	&"module_install", &"wall_slide", &"wall_jump", &"air_dash", &"charge_ready"
 ]
 const FX_PATHS := [
 	"res://scenes/effects/impact_light_fx.tscn",
