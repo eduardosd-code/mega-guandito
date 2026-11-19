@@ -19,6 +19,10 @@ run/main_scene="res://scenes/levels/sector07.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+AudioDirector="*res://scripts/systems/audio_director.gd"
+
 [display]
 
 window/size/viewport_width=480

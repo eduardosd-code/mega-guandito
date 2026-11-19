@@ -5,7 +5,7 @@ var phase := 0.0
 
 func _ready() -> void:
 	var generator := AudioStreamGenerator.new(); generator.mix_rate = 22050.0; generator.buffer_length = 0.35
-	stream = generator; volume_db = -28.0; play(); playback = get_stream_playback() as AudioStreamGeneratorPlayback
+	stream = generator; bus = &"Ambience"; volume_db = -28.0; play(); playback = get_stream_playback() as AudioStreamGeneratorPlayback
 
 func _process(_delta: float) -> void:
 	if not playback: return
