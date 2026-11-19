@@ -39,10 +39,14 @@ func _draw() -> void:
 		draw_string(ThemeDB.fallback_font, Vector2(-32, -24 - progress * 8), "PERFECT EVADE", HORIZONTAL_ALIGNMENT_LEFT, -1, 9, Color(0.7, 1.0, 0.85, alpha))
 
 func _play_placeholder_tone() -> void:
+	# AudioDirector voices hammer hits itself; this tone is only a fallback (and the perfect-evade cue).
+	if kind != "perfect" and is_inside_tree() and get_tree().get_first_node_in_group("audio_director"):
+		return
 	var stream := AudioStreamGenerator.new()
 	stream.mix_rate = 22050.0
 	stream.buffer_length = 0.18
 	var player := AudioStreamPlayer.new()
+	player.bus = &"SFX"
 	player.stream = stream
 	player.volume_db = -18.0 if kind == "light" else -13.0
 	add_child(player)
