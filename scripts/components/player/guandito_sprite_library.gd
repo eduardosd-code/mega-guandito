@@ -23,7 +23,11 @@ const TEXTURES := {
 	&"dodge_exposed": preload("res://assets/characters/guandito/sprites/runtime/dodge_exposed.png"),
 	&"hit": preload("res://assets/characters/guandito/sprites/runtime/hit.png"),
 	&"death": preload("res://assets/characters/guandito/sprites/runtime/death.png"),
-	&"module_install": preload("res://assets/characters/guandito/sprites/runtime/module_install.png")
+	&"module_install": preload("res://assets/characters/guandito/sprites/runtime/module_install.png"),
+	&"wall_slide": preload("res://assets/characters/guandito/sprites/runtime/wall_slide.png"),
+	&"wall_jump": preload("res://assets/characters/guandito/sprites/runtime/wall_jump.png"),
+	&"air_dash": preload("res://assets/characters/guandito/sprites/runtime/air_dash.png"),
+	&"charge_ready": preload("res://assets/characters/guandito/sprites/runtime/charge_ready.png")
 }
 
 const FRAME_COUNTS := {
@@ -32,7 +36,8 @@ const FRAME_COUNTS := {
 	&"light_1": 4, &"light_2": 5, &"light_3": 6,
 	&"heavy_start": 4, &"heavy_attack": 3, &"heavy_recovery": 5, &"air_light": 5,
 	&"dodge_start": 2, &"dodge_invulnerable": 3, &"dodge_exposed": 4,
-	&"hit": 3, &"death": 7, &"module_install": 8
+	&"hit": 3, &"death": 7, &"module_install": 8,
+	&"wall_slide": 3, &"wall_jump": 3, &"air_dash": 3, &"charge_ready": 4
 }
 
 const FPS := {
@@ -41,10 +46,11 @@ const FPS := {
 	&"light_1": 19.0, &"light_2": 21.7, &"light_3": 17.1,
 	&"heavy_start": 21.0, &"heavy_attack": 25.0, &"heavy_recovery": 19.2, &"air_light": 15.6,
 	&"dodge_start": 57.0, &"dodge_invulnerable": 23.0, &"dodge_exposed": 16.7,
-	&"hit": 18.0, &"death": 8.0, &"module_install": 12.3
+	&"hit": 18.0, &"death": 8.0, &"module_install": 12.3,
+	&"wall_slide": 12.0, &"wall_jump": 20.0, &"air_dash": 28.0, &"charge_ready": 10.0
 }
 
-const LOOPS := [&"idle", &"run", &"jump_up", &"fall", &"dash", &"dodge_invulnerable"]
+const LOOPS := [&"idle", &"run", &"jump_up", &"fall", &"dash", &"dodge_invulnerable", &"wall_slide", &"air_dash", &"charge_ready"]
 
 static func build() -> SpriteFrames:
 	var library := SpriteFrames.new()

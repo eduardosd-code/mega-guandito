@@ -1,3 +1,9 @@
+| `wall_slide` | 3 | Sí | mientras desliza | derivado de `fall`; chispas de fricción en la pared (detrás) | chispas |
+| `wall_jump` | 3 | No | 0.15 s | derivado de `jump_start`/`jump_up`; ráfaga de impulso contra la pared; pasa a `jump_up` | ráfaga |
+| `air_dash` | 3 | Sí | duración del dash | derivado de `dash`; dos post-imágenes cian y líneas de velocidad | `DashTrailFX` |
+| `charge_ready` | 4 | Sí | mientras se mantiene | derivado de `idle`; contorno dorado pulsante; sólo en suelo y quieto | tinte de carga |
+
+Las cuatro últimas se generan con `tools/build_guandito_zero_moves.ps1` a partir de los atlas runtime (ejecutar después de `build_guandito_sprites.ps1`).
 # GUANDITO — Especificación técnica del spritesheet
 
 ## Estado actual

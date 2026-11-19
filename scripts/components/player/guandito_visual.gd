@@ -6,13 +6,13 @@ signal animation_changed(animation_name: StringName)
 const FRAME_SIZE := Vector2i(64, 64)
 const FOOT_PIVOT := Vector2(0, 0)
 const SPRITE_LIBRARY := preload("res://scripts/components/player/guandito_sprite_library.gd")
-const LOOPING := [&"idle", &"run", &"jump_up", &"fall", &"dash", &"dodge_invulnerable"]
+const LOOPING := [&"idle", &"run", &"jump_up", &"fall", &"dash", &"dodge_invulnerable", &"wall_slide", &"air_dash", &"charge_ready"]
 const SUPPORTED_ANIMATIONS := [
 	&"idle", &"run", &"jump_start", &"jump_up", &"fall", &"land",
 	&"dash_start", &"dash", &"dash_end", &"light_1", &"light_2", &"light_3",
 	&"heavy_start", &"heavy_attack", &"heavy_recovery", &"air_light",
 	&"dodge_start", &"dodge_invulnerable", &"dodge_exposed", &"hit", &"death",
-	&"module_install"
+	&"module_install", &"wall_slide", &"wall_jump", &"air_dash", &"charge_ready"
 ]
 
 var facing := 1.0
@@ -20,6 +20,9 @@ var action: StringName = &"idle"
 var action_time := 0.0
 var visor_expression: StringName = &"neutral"
 var reactor_state: StringName = &"normal"
+# Wall slide and charge-ready are re-asserted every physics frame; generic
+# fall/idle requests are ignored while the hold is fresh to avoid flicker.
+var sustain_left := 0.0
 @onready var sprite: AnimatedSprite2D = $Sprite
 
 func _ready() -> void:
@@ -30,12 +33,19 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	action_time += delta
+	sustain_left = maxf(0.0, sustain_left - delta)
 	sprite.flip_h = facing < 0.0
 	_update_automatic_phase()
 	queue_redraw()
 
 func set_action(value: StringName, look_direction: float) -> void:
 	value = _normalize_legacy_action(value)
+	if value in [&"wall_slide", &"charge_ready"]:
+		sustain_left = 0.06
+	if sustain_left > 0.0 and ((action == &"wall_slide" and value == &"fall") or (action == &"charge_ready" and value == &"idle")):
+		return
+	if action == &"wall_jump" and action_time < 0.15 and value in [&"jump_up", &"fall"]:
+		return
 	if action == &"jump_start" and action_time < 0.08 and value == &"jump_up":
 		return
 	if action == &"land" and action_time < 0.07 and value in [&"idle", &"run"]:
@@ -80,6 +90,8 @@ func _normalize_legacy_action(value: StringName) -> StringName:
 
 func _update_automatic_phase() -> void:
 	if action == &"jump_start" and action_time >= 0.08:
+		set_action(&"jump_up", facing)
+	elif action == &"wall_jump" and action_time >= 0.15:
 		set_action(&"jump_up", facing)
 	elif action == &"dash_start" and action_time >= 0.035:
 		set_action(&"dash", facing)

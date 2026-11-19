@@ -185,6 +185,8 @@ func _handle_actions() -> void:
 			air_dash_spent = true
 			velocity.y = 0.0
 		_start_dash()
+		if not is_on_floor():
+			visual.set_action(&"air_dash", facing)
 	if jump_buffer_left > 0.0 and not is_on_floor() and wall_coyote_left > 0.0 and dodge_phase == &"normal" and not attacking:
 		_wall_jump()
 	if jump_buffer_left > 0.0 and (is_on_floor() or coyote_left > 0.0) and (_can_move() or dash_left > 0.0):
@@ -285,7 +287,7 @@ func _update_wall_slide() -> void:
 	if velocity.y > wall_slide_speed:
 		velocity.y = wall_slide_speed
 	state_machine.change(&"wall_slide")
-	_set_visual_action(&"fall")
+	visual.set_action(&"wall_slide", facing)
 
 func _wall_jump() -> void:
 	var push := dash_speed if Input.is_action_pressed("dash") else wall_jump_push
@@ -297,7 +299,7 @@ func _wall_jump() -> void:
 	jump_buffer_left = 0.0
 	wall_sliding = false
 	state_machine.change(&"jump")
-	visual.set_action(&"jump_start", facing)
+	visual.set_action(&"wall_jump", facing)
 
 func _tick_charge(delta: float) -> void:
 	var held := Input.is_action_pressed("attack_light")
@@ -315,8 +317,12 @@ func _tick_charge(delta: float) -> void:
 		var pulse := 0.5 + 0.5 * sin(Time.get_ticks_msec() * (0.04 if charge_ready else 0.02))
 		var tint := Color(1.0, 0.85, 0.3) if charge_ready else Color(0.55, 0.9, 1.0)
 		visual.modulate = Color.WHITE.lerp(tint, pulse * 0.8)
+		if charge_ready and is_on_floor() and visual.action in [&"idle", &"charge_ready"]:
+			visual.set_action(&"charge_ready", facing)
 	elif visual.modulate != Color.WHITE and hitstun_left <= 0.0:
 		visual.modulate = Color.WHITE
+	if not charge_ready and visual.action == &"charge_ready":
+		visual.set_action(&"idle", facing)
 
 func _reset_charge() -> void:
 	charge_held = 0.0
