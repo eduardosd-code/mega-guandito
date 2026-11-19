@@ -6,7 +6,7 @@ $root = Split-Path -Parent $PSScriptRoot
 $tests = @(
   "combat_phase2_smoke", "player_movement_feel_smoke", "sector07_smoke",
   "playtest_recorder_smoke", "phase4_visual_smoke", "phase6_enemy_visual_smoke",
-  "phase7_combat_lab_smoke", "zero_kit_smoke", "sector07_zero_route_smoke", "hound_phase_smoke", "enemy_fsm_smoke"
+  "phase7_combat_lab_smoke", "zero_kit_smoke", "sector07_zero_route_smoke", "hound_phase_smoke", "hound_stagger_cancel_smoke", "enemy_fsm_smoke"
 )
 & $Godot --headless --path $root --import | Out-Null
 $failed = @()
